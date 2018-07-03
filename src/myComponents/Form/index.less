@@ -1,0 +1,63 @@
+@import "../../theme/default.less";
+.searchForm {
+  .mainForm{
+    :global {
+      .ant-form-item {
+        margin-right: 8px;
+        margin-bottom: 16px;
+      }
+
+      .ant-form-item-label {
+        line-height: inherit;
+      }
+
+      .ant-form-item-control {
+        line-height: inherit;
+      }
+    }
+  }
+  .advanceForm{
+    margin-top: 8px;
+    margin-bottom: 8px;
+    :global{
+      .ant-form-item {
+        margin-bottom: 4px;
+      }
+      .ant-form-item-label {
+        text-align: left;
+      }
+    }
+  }
+  .sorterWrapper{
+    float: right;
+    top:0;
+    right: 0;
+
+  }
+  .searchTagWrapper {
+    .searchTagBar {
+      :global{
+        .ant-tag{
+          border: none;
+          background: #eee;
+          line-height: 25px;
+          height: 25px;
+        }
+      }
+      margin-bottom: 12px;
+      //margin-top: -12px;
+      .icon {
+        margin-right: 5px;
+      }
+      .text {
+        margin-right: 5px;
+        color: #999999;
+      }
+      .clearText {
+        margin-left: 10px;
+        color: #999999;
+        cursor: pointer;
+      }
+    }
+  }
+}

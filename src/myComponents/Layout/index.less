@@ -1,0 +1,147 @@
+@import url('../../utils/utils.less');
+@import url('../../theme/default.less');
+
+.fxLayout {
+  height: 100%;
+  position: relative;
+  .fxLayoutHeader {
+    padding: 0px @fx-base-spacing;
+    border-bottom: 1px solid #e8e8e8;
+    background: #fff;
+    position: relative;
+
+    &.fxLayoutHeaderHasExtra {
+      :global {
+        .console-title {
+          padding-bottom: 4px;
+          padding-top: 16px;
+        }
+      }
+    }
+
+    &.fxLayoutHeaderNoTab {
+      padding-bottom: 8px;
+    }
+
+    &.fxLayoutHeaderOnlyTitle{
+      padding-bottom: 0;
+    }
+
+    &.fxLayoutHeaderHasLeft {
+      width: ~"calc(100% - 200px)";
+      left: 200px;
+    }
+    &.fxLayoutHeaderNoPadding {
+      padding: 0;
+    }
+    &.fxLayoutHeaderOnlyTab {
+      :global {
+        .ant-tabs.ant-tabs-card > .ant-tabs-bar .ant-tabs-tab {
+          border-top: 0;
+          border-radius: 0px;
+        }
+      }
+    }
+    :global {
+      .ant-tabs-bar {
+        border-bottom: none;
+        margin: 0;
+        position: relative;
+        top: 0px;
+      }
+
+      //.ant-tabs-nav .ant-tabs-tab {
+      //  font-weight: 600;
+      //  font-size: 15px;
+      //}
+      .ant-tabs.ant-tabs-card > .ant-tabs-bar .ant-tabs-tab {
+        margin-right: 5px;
+        //font-weight: bold;
+      }
+
+      .ant-tabs.ant-tabs-card > .ant-tabs-bar .ant-tabs-tab-active {
+        background-color: @primary-color;
+        border-color: @primary-color;
+        color: #fff;
+      }
+    }
+  }
+
+  .fxLayoutFooter {
+    border-top: 1px solid #e8e8e8;
+    zoom: 1;
+    position: absolute;
+    bottom: 1px;
+    background: #fff;
+    padding: 8px @fx-padding-horizontal;
+    .clearfix();
+    :global {
+      .ant-pagination-options-size-changer.ant-select {
+        margin-right: 0px;
+      }
+    }
+  }
+
+  .fxLayoutLeft {
+    width: 200px;
+    position: absolute;
+    padding: 6px 12px;
+    height: ~"calc(100vh - 50px)";
+    background-color: #fff;
+    border-right: 1px solid #e8e8e8;
+  }
+
+  &.bordered {
+
+  }
+
+  &.fxLayoutStageTop {
+    top: -1px;
+    .fxLayoutLeft {
+      height: ~"calc(100vh - 50px)";
+    }
+  }
+
+  .fxLayoutWrap {
+    overflow: auto;
+    padding: @fx-padding-vertical @fx-padding-horizontal;
+    .fxLayoutWrapBody {
+      &.fxLayoutWrapBodyNoPadding {
+        padding: 0;
+      }
+      &.fxLayoutWrapBodyHasBg {
+        background-color: #fff;
+      }
+      padding: @fx-padding-vertical @fx-padding-horizontal;
+    }
+    &.fxLayoutWrapOnlyCenter {
+      .fxLayoutCenter {
+        width: ~'calc(100%)';
+        margin-left: 0px;
+      }
+    }
+    &.fxLayoutWrapLeftCenter {
+      .fxLayoutWrapLeft {
+        //border-right: 1px solid #e8e8e8;
+      }
+      .fxLayoutWrapCenter {
+        width: ~'calc(100% - 224px)';
+        position: relative;
+        left: 224px;
+      }
+    }
+    .fxLayoutWrapCenter {
+      //overflow: auto;
+    }
+    .clearfix();
+    .fxLayoutWrapLeft {
+      width: 200px;
+      position: fixed;
+      padding: 6px 12px;
+      background: #fff;
+      overflow: auto;
+    }
+
+  }
+
+}

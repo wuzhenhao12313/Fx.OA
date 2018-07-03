@@ -1,0 +1,46 @@
+.regCenter {
+  .regStep {
+    max-width: 750px;
+    margin: 16px auto;
+  }
+  .regForm {
+    margin: 40px auto 0;
+    max-width: 700px;
+
+    .positionPanel{
+      .positionTagTitle {
+        font-size: 18px;
+        margin-bottom: 16px;
+      }
+      .positionTagBody{
+        .positionTagItem {
+          text-align: center;
+          padding: 7px 5px;
+          border-radius: 3px;
+          cursor: pointer;
+          border: 1px solid #03A9F4;
+          &:hover{
+            border-color: #18bd7c;
+          }
+          &.selected {
+            background-color: #18bd7c;
+            border-color: #18bd7c;
+            color: #fff;
+          }
+        }
+      }
+
+    }
+
+    .buttonBar{
+      width: 700px;
+      margin: 20px auto 0;
+      :global{
+        .ant-btn{
+
+        }
+      }
+    }
+
+  }
+}

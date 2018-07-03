@@ -1,0 +1,18 @@
+.fxTree {
+  :global {
+    .ant-tree-node-parent {
+      & > .ant-tree-node-content-wrapper > .ant-tree-title {
+        color: #333;
+        font-weight: bold;
+        font-size: 13px;
+      }
+    }
+
+    li.ant-tree-treenode-disabled > span:not(.ant-tree-switcher),
+    li.ant-tree-treenode-disabled > .ant-tree-node-content-wrapper,
+    li.ant-tree-treenode-disabled > .ant-tree-node-content-wrapper span {
+      color: rgba(0, 0, 0, 0.65);
+      cursor: inherit;
+    }
+  }
+}

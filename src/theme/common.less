@@ -1,0 +1,77 @@
+@import "~antd/lib/style/themes/default.less";
+.horizontalCheck {
+  :global {
+    .ant-checkbox-wrapper {
+      height: 30px;
+      line-height: 30px;
+      width: 100%;
+      .ant-checkbox-disabled + span {
+        color: @text-color;
+        cursor: inherit;
+      }
+
+      .ant-checkbox-checked {
+        &.ant-checkbox-disabled .ant-checkbox-inner {
+          background-color: @primary-color;
+          border-color: @primary-color !important;
+        }
+      }
+
+      .ant-checkbox-disabled {
+        cursor: inherit;
+      }
+      .ant-checkbox-disabled .ant-checkbox-inner {
+        background-color: #fff;
+      }
+
+      .ant-checkbox-disabled.ant-checkbox-checked .ant-checkbox-inner:after {
+        border-color: #f5f5f5;
+      }
+
+      .ant-checkbox-disabled .ant-checkbox-input {
+        cursor: inherit;
+      }
+      input[type="radio"][disabled], input[type="checkbox"][disabled], input[type="radio"].disabled, input[type="checkbox"].disabled {
+        cursor: inherit;
+      }
+
+    }
+    .ant-checkbox-wrapper + .ant-checkbox-wrapper {
+      margin-left: 0;
+    }
+  }
+}
+
+.horizontalRadio {
+  :global {
+    .ant-radio-wrapper {
+      height: 30px;
+      line-height: 30px;
+      display: block;
+      &.ant-radio-wrapper-disabled {
+        .ant-radio-disabled .ant-radio-input {
+          cursor: inherit;
+        }
+        input[type="radio"][disabled], input[type="checkbox"][disabled], input[type="radio"].disabled, input[type="checkbox"].disabled {
+          cursor: inherit;
+        }
+        .ant-radio-disabled + span {
+          color: @text-color;
+          cursor: inherit;
+        }
+        .ant-radio-disabled .ant-radio-inner {
+          border-color: #d9d9d9;
+          background-color: #fff;
+        }
+        .ant-radio-checked {
+          &.ant-radio-disabled .ant-radio-inner:after {
+            background-color: @primary-color !important;
+          }
+        }
+        .ant-radio-checked .ant-radio-inner {
+          border-color: @primary-color !important;
+        }
+      }
+    }
+  }
+}

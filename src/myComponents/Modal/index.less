@@ -1,0 +1,57 @@
+@import "../../theme/default.less";
+
+.modalMask {
+  position: fixed;
+  top: 0;
+  right: 0;
+  left: 0;
+  bottom: 0;
+  //background-color: #373737;
+  //    //background-color: rgba(0, 0, 0, 0.65);
+  height: 100%;
+  z-index: 1000;
+  background-color: rgba(0, 0, 0, 0.15) !important;
+}
+
+.draggerContainer {
+  position: fixed;
+  top: 0px;
+  right: 0px;
+  left: 0px;
+  bottom: 0px;
+  height: 100%;
+  z-index: 1000;
+}
+
+:global {
+  //.ant-modal-wrap {
+  //  position: absolute;
+  //  overflow: auto;
+  //  top: 0;
+  //  right: inherit;
+  //  bottom: inherit;
+  //  left: 0;
+  //  z-index: 0;
+  //  display: table;
+  //  margin: 0 auto;
+  //}
+}
+
+.fxModalStandard {
+  :global {
+
+    .ant-modal-header {
+      padding: @fx-padding-vertical @fx-padding-horizontal;
+      cursor: move;
+    }
+    .ant-modal-content {
+      .ant-modal-close-x {
+        color: #fff !important;
+      }
+      .ant-modal-body {
+        padding: @fx-padding-vertical @fx-padding-horizontal;
+      }
+    }
+
+  }
+}
