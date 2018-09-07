@@ -26,11 +26,11 @@ export default class extends React.Component {
   }
 
   render() {
-    const {action, more} = this.props;
+    const {action=[], more,...restProps} = this.props;
     const length = action.length;
     return (
       <div>
-        {action.map((child, idx) => {
+        {action&&action.map((child, idx) => {
           let {isShow} = child;
           isShow = isShow === undefined ? true : isShow;
           if (isShow) {
@@ -44,7 +44,7 @@ export default class extends React.Component {
           }
         })
         }
-        {more ? <MoreBtn items={more}/> : null}
+        {more ? <MoreBtn items={more} {...restProps}/> : null}
       </div>
     );
   }

@@ -1,5 +1,6 @@
 import React, {PureComponent} from 'react';
 import {connect} from 'dva';
+import classNames from 'classnames';
 import {
   Input,
   Modal,
@@ -555,7 +556,11 @@ export default class extends PureComponent {
     ];
 
     return (
-      <div className={styles.employeeHome}>
+      <div className={classNames({
+        [styles.employeeHome]: true,
+        ['ant-layout-top-100']: true,
+      })}
+      >
         <div className={styles.employeeHomeWrapper}>
           <Row gutter={24}>
             <Col span={16}>

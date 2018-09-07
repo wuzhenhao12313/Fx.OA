@@ -190,7 +190,7 @@ export default class extends PureComponent {
     if (moment(endDate) < moment()) {
       return <Badge status="default" text='已过期'/>
     }
-    if (moment(endDate) - moment() < 30 * 24 * 60 * 60 * 1000) {
+    if (moment(endDate) - moment() < 35 * 24 * 60 * 60 * 1000) {
       const value = (moment(endDate).diff(moment(), 'days', true));
       return (
         <Fragment>
@@ -518,6 +518,10 @@ export default class extends PureComponent {
         dataIndex: 'jobNumber',
         key: 'jobNumber',
         sorter: true,
+      },
+      {
+        title:'身份证',
+        dataIndex:'ID',
       },
       {
         title: '部门',

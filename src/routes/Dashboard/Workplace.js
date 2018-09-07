@@ -11,6 +11,7 @@ import StandardModal from '../../myComponents/Modal/Standard';
 import FlowLogTimeLine from './FlowLogTimeLine';
 
 import styles from './Workplace.less';
+import Config from "../../utils/rs/Config";
 
 const modelNameSpace = 'dashboard';
 const Fragment = React.Fragment;
@@ -147,10 +148,15 @@ export default class extends PureComponent {
         loading={loading.effects[`${modelNameSpace}/getWorkFlow`]}
         pagination={pageProps}
         locale={{
-          emptyText: loading.effects[`${modelNameSpace}/getWorkFlow`] ? null : (
-            <div className="text-size-16">
-              <Icon type="info-circle-o" className="text-size-16 text-success"/>没有查询到符合条件的记录
-            </div>)
+          emptyText: (
+            <div style={{height:200}}>
+              <div style={{position:'relative',top:36}}><img src={`${Config.cdn}/image/empty.png`} alt=""/>
+              </div>
+              <div style={{position:'relative',top:50,color:'#80848f',fontSize:14}}>
+                没有查询到符合条件的记录
+              </div>
+            </div>
+          )
         }}
         renderItem={(item, index) => {
           const {title, flowType, content, createDate, flowInsID} = item;
@@ -251,31 +257,15 @@ export default class extends PureComponent {
       </Row>
     )
 
-    const layoutProps = {
-      header: {
-        padding: false,
-        render: () => {
-          return (
-            <Card bordered={false}>
-              {pageHeaderContent}
-            </Card>
-          )
-        }
-      },
-      body: {
-        center: body,
-        padding: false,
-        bg: false,
-      }
-    }
-
     return (
-      <Fragment>
-        <FxLayout
-          {...layoutProps}
-        />
-        {this.state.noticeModal.visible ? this.showMainNotice() : null}
-      </Fragment>
+      <div className='ant-layout-top-50'>
+        <Card bordered={false}>
+          {pageHeaderContent}
+        </Card>
+        <div style={{padding:24}}>
+          {body}
+        </div>
+      </div>
     );
   }
 }

@@ -23,6 +23,7 @@ export default createModel({
     nowAssess: {
       record: {},
       recordConfig: [],
+      recordUser:null,
     },
     assessUserList: [],
     assessDetail: {
@@ -48,13 +49,14 @@ export default createModel({
       const res = yield call(getNowAssess, payload);
       yield put({type: 'getConfig'});
       if (res.data) {
-        const {record, recordConfig} = res.data.toObject();
+        const {record, recordConfig,recordUser} = res.data.toObject();
         yield put({
           type: 'setStateOk',
           payload: {
             nowAssess: {
               record,
               recordConfig,
+              recordUser,
             },
           },
         });

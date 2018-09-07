@@ -31,6 +31,8 @@ export function fetchProdService({url, params}) {
       const {data} = res;
       if (data) {
         resolve(data.toObject());
+      }else {
+        resolve(res);
       }
     });
   });

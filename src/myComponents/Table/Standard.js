@@ -18,6 +18,8 @@ import styles from './index.less';
 import {treeToObj} from '../../utils/rs/Util';
 import {fetchService, postService} from '../../utils/rs/Fetch';
 import StandardModal from '../Modal/Standard';
+import Pagination from '../../myComponents/Fx/Pagination';
+import Config from '../../utils/rs/Config';
 
 const FormItem = Form.Item;
 const CheckGroup = Checkbox.Group;
@@ -277,41 +279,55 @@ export default class extends PureComponent {
   }
 
   renderTable() {
-    const {mode, columns, loading, dataSource, bordered = true, title, id,  showIndex, ...restProps} = this.props;
+    const {mode, columns, loading, dataSource, bordered = false, title, page, emptyProps, className, ...restProps,} = this.props;
     const {showDataSource} = this.state;
-    let _columns = mode === 'simple' || !id ? columns : columns.filter(x => !this.state.hideColumns.contains(x.dataIndex));
-    if (showIndex) {
-      _columns.unshift({
-        title: '#',
-        width: 55,
-        dataIndex: '_index',
-        render: (text, row, index) => {
-          return index + 1;
-        }
-      });
-    }
-
+    // let _columns = mode === 'simple' || !id ? columns : columns.filter(x => !this.state.hideColumns.contains(x.dataIndex));
+    const locale = !emptyProps || emptyProps.type === 'img' ? (
+      <div style={{height: emptyProps && emptyProps.size === 'small' ? 200 : 400}}>
+        <div style={{position: 'relative', top: emptyProps && emptyProps.size === 'small' ? 36 : 130}}><img
+          src={`${Config.cdn}/image/empty.png`} alt=""/>
+        </div>
+        <div style={{
+          position: 'relative',
+          top: emptyProps && emptyProps.size === 'small' ? 50 : 140,
+          color: '#80848f',
+          fontSize: 14
+        }}>
+          {!emptyProps || !emptyProps.text ? '没有查询到符合条件的记录' : emptyProps.text}
+        </div>
+      </div>
+    ) : (
+      <div className="text-size-16">
+        <Icon type="info-circle-o"
+              className="text-size-16 text-success"/>{!emptyProps.text ? '没有查询到符合条件的记录' : emptyProps.text}
+      </div>
+    )
     const _loading = mode === 'simple' ? loading : loading || !showDataSource || (loading && (!showDataSource));
     return (
-      <Fragment>
+      <div className={classNames({
+        [styles.fxTableNotBordered]: !bordered,
+        [styles.fxTableBordered]: bordered,
+      })}>
         {title ? <div className={styles.fxTableTitle}>{title}</div> : null}
         <Table
           size="default"
           pagination={false}
-          columns={_columns}
+          columns={columns}
           bordered={bordered}
           dataSource={!_loading ? dataSource : []}
           loading={_loading}
           locale={{
-            emptyText: (
-              <div className="text-size-16">
-                <Icon type="info-circle-o" className="text-size-16 text-success"/>没有查询到符合条件的记录
-              </div>)
+            emptyText: (<div className="text-size-16">
+              <Icon type="info-circle-o"
+                    className="text-size-16 text-success"/>{emptyProps && emptyProps.text ? emptyProps.text : '没有查询到符合条件的记录'}
+            </div>),
           }}
           {...restProps}
         />
-      </Fragment>
-
+        <div style={{marginTop: 16}}>
+          {page ? <Pagination pagination={page}/> : null}
+        </div>
+      </div>
     )
   }
 
@@ -327,7 +343,7 @@ export default class extends PureComponent {
   }
 
   render() {
-    const {mode, actions, tools, customTools,tableID, bordered = true, style} = this.props;
+    const {mode, actions, tools, customTools, tableID, bordered = false, style} = this.props;
     return (
       <div style={style} className={classNames({
         [styles.fxTableStandard]: true,

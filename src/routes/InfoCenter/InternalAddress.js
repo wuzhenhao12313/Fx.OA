@@ -119,7 +119,6 @@ export default class extends PureComponent {
             <p>手机：{mobile1}</p>
             {!String.IsNullOrEmpty(mobile2) ? <p>备用手机：{mobile1}</p> : null}
             <p>QQ：{qq}</p>
-            <p>钉钉：{dingding}</p>
             <p>邮箱：{email}</p>
           </Col>
         </Row>
@@ -160,11 +159,6 @@ export default class extends PureComponent {
         loading: loading.effects[`${modelNameSpace}/get`],
         center: this.renderList(),
       },
-      left: (
-        <DepartmentTree
-          handleSelect={selectedKeys => this.reset(selectedKeys)}
-        />
-      ),
       footer: {
         pagination: pagination({pageIndex, total}, this.getList),
       }

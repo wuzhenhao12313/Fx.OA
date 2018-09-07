@@ -6,170 +6,127 @@
 @border-color-report: #6d6969;
 @border-style: solid;
 
-:global {
-  .ant-table-placeholder {
-    border-color: @border-color !important;
-  }
-  .ant-table-bordered {
+.fxTableStandard {
 
-    table {
-      border-color: @border-color !important;
-    }
+  :global {
 
-    th {
-      border-color: @border-color !important;
-    }
+    .ant-table-bordered {
 
-    td {
-      border-color: @border-color !important;
-    }
-  }
+      .ant-table-tbody > tr > td {
+        border-bottom: 1px solid #e8e8e8 !important;
+      }
+      th {
+        border-bottom: 1px solid #e8e8e8 !important;
+      }
+      table {
+        //border-color: @border-color !important;
+      }
 
-  .ant-table-footer {
-    border-color: @border-color !important;
-  }
+      th {
+        //border-color: @border-color !important;
+      }
 
-  .ant-table table {
-    border-radius: 0;
-    td {
-      position: relative;
-    }
-
-    .ant-table-thead > tr.ant-table-row-hover > td, .ant-table-tbody > tr.ant-table-row-hover > td, .ant-table-thead > tr:hover > td, .ant-table-tbody > tr:hover > td {
-      background-color: transparent;
-      &.ant-th-disabled {
-        background: #e8e8e8;
+      td {
+        //border-color: @border-color !important;
       }
     }
 
-  }
-  .ant-table-thead > tr:first-child > th:last-child {
-    border-top-right-radius: 0;
-  }
-  .ant-table-thead > tr:first-child > th:first-child {
-    border-top-left-radius: 0;
-  }
+    .ant-table-footer {
+      //border-color: @border-color !important;
+    }
 
-  .ant-table-input {
-    border: none;
-    &:focus {
-      outline: 0;
-      -webkit-box-shadow: none;
-      box-shadow: none;
-      text-align: left !important;
+    .ant-table table {
+      border-radius: 0;
+      td {
+        position: relative;
+      }
+      &.fxTableBordered{
+
+      }
+
+
+
+      .ant-table-tbody > tr > td {
+        border-bottom: none;
+      }
     }
-  }
-  .ant-td-edit {
-    position: absolute;
-    top: 0;
-    left: 0;
-    height: 100%;
-    right: 0;
-    bottom: 0;
-    &.ant-td-edit-active {
-      width: ~'calc(100% + 4px)' !important;
-      border: 2px solid green;
-      /* z-index: 61; */
-      /* outline: 2px; */
-      margin: -2px 0px 0px -2px;
-      height: ~'calc(100% + 4px)';
-      z-index: 5;
-      transition: all ease 0.3s;
+    .ant-table-thead > tr > th {
+      background-color: #f5f8fa;
+      color: #1c2438;
+      font-weight: bold;
+      border-bottom: none;
     }
-    //&:hover {
-    //  width: ~'calc(100% + 4px)' !important;
-    //  border: 2px solid green;
-    //  /* z-index: 61; */
-    //  /* outline: 2px; */
-    //  margin: -2px 0px 0px -2px;
-    //  height: ~'calc(100% + 4px)';
-    //  z-index: 5;
-    //  transition: all ease 0.3s;
-    //}
+
+    .ant-table-thead > tr:first-child > th:last-child {
+      border-top-right-radius: 0;
+    }
+    .ant-table-thead > tr:first-child > th:first-child {
+      border-top-left-radius: 0;
+    }
 
     .ant-table-input {
+      border: none;
+      &:focus {
+        outline: 0;
+        -webkit-box-shadow: none;
+        box-shadow: none;
+        text-align: left !important;
+      }
+    }
+    .ant-td-edit {
       position: absolute;
       top: 0;
       left: 0;
       height: 100%;
       right: 0;
       bottom: 0;
+      &.ant-td-edit-active {
+        width: ~'calc(100% + 4px)' !important;
+        border: 2px solid green;
+        /* z-index: 61; */
+        /* outline: 2px; */
+        margin: -2px 0px 0px -2px;
+        height: ~'calc(100% + 4px)';
+        z-index: 5;
+        transition: all ease 0.3s;
+      }
+      //&:hover {
+      //  width: ~'calc(100% + 4px)' !important;
+      //  border: 2px solid green;
+      //  /* z-index: 61; */
+      //  /* outline: 2px; */
+      //  margin: -2px 0px 0px -2px;
+      //  height: ~'calc(100% + 4px)';
+      //  z-index: 5;
+      //  transition: all ease 0.3s;
+      //}
+
+      .ant-table-input {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 100%;
+        right: 0;
+        bottom: 0;
+      }
+    }
+    .ant-th-disabled {
+      background: #fff;
+      cursor: not-allowed;
     }
   }
-
-  .ant-th-disabled {
-    background: #e8e8e8;
-    cursor: not-allowed;
+  .fxTableNotBordered {
+    :global{
+      .ant-table-row:nth-child(2n) {
+        & > td {
+          background-color: #fafafa;
+        }
+      }
+      .ant-table-placeholder {
+        border-bottom: none!important;
+      }
+    }
   }
-}
-
-//:global {
-//  .ant-table {
-//    &.ant-table-empty {
-//      border-left: none !important;
-//      border-right: none !important;
-//      .ant-table-thead th {
-//        border-bottom: 1px solid @border-color-base;
-//        &:first-child {
-//          border-left: 1px solid @border-color-base;
-//
-//        }
-//        &:last-child {
-//          border-right: 1px solid @border-color-base;
-//        }
-//      }
-//      .ant-table-footer {
-//        border: 1px solid @border-color-base;
-//        border-top: none;
-//      }
-//    }
-//    &.ant-table-default {
-//      border-top: 1px solid @border-color-base;
-//      border-left: 1px solid @border-color-base;
-//      border-right: 1px solid @border-color-base;
-//      .ant-table-thead th {
-//        padding: 8px !important;
-//        //background-color: #f6f6f6;
-//        //font-weight: bold;
-//        //color: #666;
-//      }
-//      .ant-table-tbody {
-//        & > .ant-table-row {
-//          & > td {
-//            padding: 8px !important;
-//            border-bottom: 1px solid @border-color-base;
-//          }
-//          //&:last-child {
-//          //  & > td {
-//          //    border-bottom: none;
-//          //  }
-//          //}
-//        }
-//      }
-//    }
-//    &.ant-table-fixed-header .ant-table-scroll .ant-table-header {
-//      overflow: hidden !important;
-//      padding-bottom: 20px !important;
-//      margin-bottom: -20px !important;
-//    }
-//    .ant-table-placeholder {
-//      color: #333333;
-//      border-left: 1px solid @border-color-base;
-//      border-right: 1px solid @border-color-base;
-//    }
-//    .ant-table-footer {
-//      padding: 8px;
-//      background: #f6f6f6;
-//      border-radius: 0 0 3px 3px;
-//      position: relative;
-//      border-bottom: 1px solid @border-color-base;
-//    }
-//  }
-//
-//}
-
-.fxTableStandard {
-
   position: relative;
   //margin: 0px @fx-base-spacing @fx-padding-vertical @fx-base-spacing;
 

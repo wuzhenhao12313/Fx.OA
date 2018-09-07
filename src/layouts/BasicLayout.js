@@ -174,7 +174,7 @@ export default class extends React.PureComponent {
       }, 10000);
     }
     const stage = jQuery('#stage');
-    const contentHeight = 50;
+    const contentHeight = stage.length > 0 && Config.webSetting.stageLayout === 'top'?100:50;
     const layout = (
       <Layout>
         <SiderMenu
@@ -187,7 +187,7 @@ export default class extends React.PureComponent {
           isMobile={this.state.isMobile}
           logo={logo}
         />
-        <Layout>
+        <Layout style={{backgroundColor:'#fff'}}>
           <GlobalHeader
             currentUser={currentUser}
             fetchingNotices={fetchingNotices}
@@ -200,14 +200,14 @@ export default class extends React.PureComponent {
             onNoticeClear={this.handleNoticeClear}
           />
           <Content
-            style={{height: '100%'}}
+            style={{height: '100%',overflow: 'auto'}}
             className={classNames({
               [styles.contentFold]: collapsed,
               [styles.contentUnfold]: !collapsed,
               [styles.hasStage]: stage.length > 0 && Config.webSetting.stageLayout === 'left',
             })
             }>
-            <div style={{height: `calc(100vh - ${contentHeight}px)`, marginTop: contentHeight}}>
+            <div style={{marginTop: contentHeight}}>
               <Switch>
                 {
                   redirectData.map(item =>

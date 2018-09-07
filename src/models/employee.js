@@ -2,7 +2,7 @@ import {message} from 'antd';
 import {createModel} from '../utils/rs/Model';
 import {
   get, getCount, saveWorkPhoto,
-  saveUserPosition, add, edit, remove
+  saveUserPosition, add, edit, remove,getEmployeeCount,
 } from '../services/employee';
 import {get as getDict} from '../services/dict';
 
@@ -26,9 +26,9 @@ export default createModel({
       empName: undefined,
       sex: undefined,
       workStatus: undefined,
-      dateType: undefined,
-      startDate: undefined,
-      endDate: undefined,
+      entryDate: undefined,
+      probationDate: undefined,
+      leaveDate: undefined,
       depID: undefined,
       userPosition:undefined,
     },
@@ -40,6 +40,7 @@ export default createModel({
     selectItems: [],
     salaryList: [],
     workStatusList: [],
+    employeeCountModel:{},
   },
   effects: {
     * get({payload}, {call, put}) {
@@ -53,6 +54,7 @@ export default createModel({
           },
         });
         yield put({type: 'getCount'});
+        yield put({type:'getEmployeeCount'})
       }
     },
     * getCount({payload}, {call, put}) {
@@ -65,6 +67,18 @@ export default createModel({
             count: {
               ...data,
             }
+          },
+        });
+      }
+    },
+    * getEmployeeCount({payload}, {call, put}) {
+      const res = yield call(getEmployeeCount, payload);
+      if (res.data) {
+        const {record} = res.data.toObject();
+        yield put({
+          type: 'setStateOk',
+          payload: {
+            employeeCountModel: record,
           },
         });
       }

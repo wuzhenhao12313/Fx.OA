@@ -8,7 +8,13 @@ import {
 
 export default class extends React.Component {
   render() {
-    const {items, text = '更多', type = 'drop'} = this.props;
+    const { items, text = '更多', type = 'drop', customMore } = this.props;
+    if (!items) {
+      return null;
+    }
+    if (items.length === 0) {
+      return null;
+    }
     const menu = (
       <Menu>
         {items.map((item, idx) => {
@@ -48,6 +54,8 @@ export default class extends React.Component {
       content = (
         <a>...</a>
       );
+    } else if (type ==='custom') {
+      content=customMore;
     }
     return (
       <Dropdown overlay={menu} trigger={['click']}>

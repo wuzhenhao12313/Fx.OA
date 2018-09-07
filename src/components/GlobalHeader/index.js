@@ -116,7 +116,7 @@ export default class GlobalHeader extends PureComponent {
   }
 
   changeTheme = (theme) => {
-    localStorage.setItem('fx_theme', theme);
+    localStorage.setItem('fx_theme', 'light');
     this.setState({
       theme,
     }, () => {
@@ -208,7 +208,7 @@ export default class GlobalHeader extends PureComponent {
     );
     const noticeData = this.getNoticeData();
     return (
-      <Header style={{background: '#fff', padding: 0}} className={classNames(styles.header, {
+      <Header style={{background: '#007454', padding: 0}} className={classNames(styles.header, {
         [styles.headerCollapsed]: collapsed,
       })}>
         <Icon
@@ -227,6 +227,7 @@ export default class GlobalHeader extends PureComponent {
             onPopupVisibleChange={onNoticeVisibleChange}
             loading={fetchingNotices}
             popupAlign={{offset: [20, -16]}}
+
           >
             <NoticeIcon.Tab
               list={noticeData['通知']}

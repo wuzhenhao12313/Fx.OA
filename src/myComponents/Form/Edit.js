@@ -30,13 +30,14 @@ export default class extends React.Component {
   }
 
   render() {
-    const {form: {getFieldDecorator}, item, onSubmit, submitButton, labelCol = 4, wrapperCol, reset, ref} = this.props;
+    const {form: {getFieldDecorator}, item, onSubmit, submitButton, labelCol = 4, wrapperCol, reset, ref,wrappedComponentRef,} = this.props;
     const _ref = ref ? {ref} : {};
+    const _refForm = wrappedComponentRef ? {wrappedComponentRef,} : {};
     const buttonLayout = {
       wrapperCol: {span: 24 - labelCol, offset: labelCol},
     }
     return (
-      <Form layout="horizontal" className="ant-form-edit" {..._ref}>
+      <Form layout="horizontal" className="ant-form-edit" {..._ref} {..._refForm}>
         {item.map(i => {
           let {key, label, isShow, value, initialValue, hasFeedback, config,children, ...restProps} = i;
           isShow = isShow === undefined ? true : isShow;

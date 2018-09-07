@@ -230,7 +230,6 @@ export default class extends React.Component {
       computerLevel, hobby, specialty, maritalStatus, emergencyContact, emergencyContactPhone,
       originPlace, homeAddress, residentialAddress, ID, bankCard, openingBank, education, workPhotoUrl,dingID,
     } = employee;
-
     const userPosition = [];
     const {isAdd} = this.state;
     positionList.forEach(i => {
@@ -293,7 +292,7 @@ export default class extends React.Component {
                         ],
                         initialValue: workStatus,
                       })(
-                        <AutoSelect typeCode="job-status" placeholder="请选择工作状态"/>
+                        <AutoSelect typeCode="job-status" placeholder="请选择工作状态" ignore={['quit','waiting-quit','retire']}/>
                       )}
                     </FormItem>
                   </Col>
@@ -487,7 +486,7 @@ export default class extends React.Component {
               <Col span={6}>
                 <FormItem label="婚姻状况">
                   {getFieldDecorator('maritalStatus', {
-                    initialValue: maritalStatus ? maritalStatus.toString() : null,
+                    initialValue: maritalStatus? maritalStatus.toString() : maritalStatus===0?'0':null,
                   })(
                     <AutoSelect typeCode="marital-status"/>
                   )}

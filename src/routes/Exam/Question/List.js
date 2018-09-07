@@ -17,6 +17,7 @@ import {
   Select,
   Col,
   AutoComplete,
+  Tabs,
 } from 'antd';
 import classNames from 'classnames';
 import jQuery from 'jquery';
@@ -51,10 +52,10 @@ const filterSettings = {
 }
 
 const filterLabels = {
-    userName: '创建者',
-    questionType: '题目类型',
-    title: '題目標題',
-  };
+  userName: '创建者',
+  questionType: '题目类型',
+  title: '題目標題',
+};
 
 const tagOptions = [
   {
@@ -86,6 +87,7 @@ const CheckGroup = Checkbox.Group;
 const ButtonGroup = Button.Group;
 const Option = Select.Option;
 const Fragment = React.Fragment;
+const TabPane=Tabs.TabPane;
 
 
 @connect(state => ({
@@ -112,11 +114,11 @@ export default class extends PureComponent {
       questionID: 0,
       index: -1,
     },
-    tagModal:{
+    tagModal: {
       visible: false,
       content: null,
-      currentTags:null,
-      index:-1,
+      currentTags: null,
+      index: -1,
     },
     currentQuestionType: '',
     optionList: [],
@@ -125,7 +127,7 @@ export default class extends PureComponent {
     questionCategory: '',
     userNameDataSource: [],
     inputVisible: false,
-    newTagValue:null,
+    newTagValue: null,
   }
 
   ref = {
@@ -168,7 +170,7 @@ export default class extends PureComponent {
           }
         }
     } = this.props;
-    const {questionCategory} = this.state;
+    const {questionCategory,currentQuestionType} = this.state;
     const {getFieldsValue} = this.ref.searchForm.props.form;
     model.setState({
       pageIndex: page || pageIndex,
@@ -184,6 +186,7 @@ export default class extends PureComponent {
         ...getFieldsValue(),
         ...sorter,
         questionCategory,
+        questionType:currentQuestionType,
         isDelete: 0,
       });
     });
@@ -306,14 +309,14 @@ export default class extends PureComponent {
   }
 
   edit = () => {
-    const { model } = this.props;
-    const { index,currentTags, } = this.state.tagModal;
-    const { [modelNameSpace]: { data: { list,total, } }} = this.props;
+    const {model} = this.props;
+    const {index, currentTags,} = this.state.tagModal;
+    const {[modelNameSpace]: {data: {list, total,}}} = this.props;
     const content = list[index];
     model.edit({
       questionEntity: {
         ...content,
-        questionTags:currentTags,
+        questionTags: currentTags,
       }
     }).then(res => {
       const {success, data} = res;
@@ -518,7 +521,7 @@ export default class extends PureComponent {
   }
 
   getTagList = () => {
-    const { model } = this.props;
+    const {model} = this.props;
     model.call('getTagList');
   }
 
@@ -806,7 +809,7 @@ export default class extends PureComponent {
     const questionItem = jQuery(".ant-list-item");
     const imageDivWidth = questionItem.width();
     const {selectedItem} = this.state;
-    let {isMuti, options, answer, level, questionID, createDate, createUserName, status, questionImageList, questionType,questionTags} = item;
+    let {isMuti, options, answer, level, questionID, createDate, createUserName, status, questionImageList, questionType, questionTags} = item;
     let text;
     questionImageList = questionImageList ? questionImageList.toObject() : [];
     const questionTagList = questionTags ? questionTags.toList() : [];
@@ -904,7 +907,7 @@ export default class extends PureComponent {
             {createUserName}
             </span>
         </span>
-        <span style={{marginLeft:20}}>
+        <span style={{marginLeft: 20}}>
         {
           questionTagList.map(_tag => {
             return (
@@ -947,7 +950,7 @@ export default class extends PureComponent {
           <Button
             icon='tag'
             type='primary'
-            onClick={e => this.openTagModal({visible:true,currentTags:item.questionTags,index:idx})}
+            onClick={e => this.openTagModal({visible: true, currentTags: item.questionTags, index: idx})}
           />
           <Button
             icon="delete"
@@ -1135,16 +1138,16 @@ export default class extends PureComponent {
   }
 
   showInput = () => {
-    this.setState({ inputVisible: true }, () => this.input.focus());
+    this.setState({inputVisible: true}, () => this.input.focus());
   }
 
   handleInputChange = (e) => {
-    this.setState({ newTagValue: e.target.value });
+    this.setState({newTagValue: e.target.value});
   }
 
   handleInputConfirm = () => {
-    const { newTagValue } = this.state;
-    const { model } = this.props;
+    const {newTagValue} = this.state;
+    const {model} = this.props;
     if (String.IsNullOrEmpty(newTagValue)) {
       this.setState({
         inputVisible: false,
@@ -1180,7 +1183,7 @@ export default class extends PureComponent {
 
   setCurrentTag = (isAdd, tagName) => {
     console.log(isAdd)
-    const { currentTags } = this.state.tagModal;
+    const {currentTags} = this.state.tagModal;
     let currentTagList = [];
     if (isAdd) {
       currentTagList = currentTags.toList();
@@ -1199,7 +1202,7 @@ export default class extends PureComponent {
   }
 
   removeTag = (tagID) => {
-    const { model } = this.props;
+    const {model} = this.props;
     Modal.confirm({
       title: '删除标签',
       content: '',
@@ -1218,21 +1221,21 @@ export default class extends PureComponent {
   saveInputRef = input => this.input = input;
 
   renderTagModal() {
-    let { tagList, } = this.props[modelNameSpace];
+    let {tagList,} = this.props[modelNameSpace];
     tagList = tagList || [];
-    const { visible, currentTags } = this.state.tagModal;
+    const {visible, currentTags} = this.state.tagModal;
     const currentTagsList = currentTags ? currentTags.toList() : [];
     return (
       <StandardModal
         visible={visible}
         title='标签'
         width={500}
-        onCancel={e => this.setState({ tagModal: { visible: false } })}
+        onCancel={e => this.setState({tagModal: {visible: false}})}
         onOk={this.edit}
       >
         {tagList.map(tag => {
           const isAdd = currentTagsList.contains(tag.name);
-          const colorprops = isAdd ? { color: Color.Success } : {};
+          const colorprops = isAdd ? {color: Color.Success} : {};
           return (
             <Tag
               {...colorprops}
@@ -1249,7 +1252,7 @@ export default class extends PureComponent {
             type="text"
             size="small"
             value={this.state.newTagValue}
-            style={{ width: 78 }}
+            style={{width: 78}}
             onChange={this.handleInputChange}
             onBlur={this.handleInputConfirm}
             onPressEnter={this.handleInputConfirm}
@@ -1258,12 +1261,25 @@ export default class extends PureComponent {
         {!this.state.inputVisible && (
           <Tag
             onClick={this.showInput}
-            style={{ background: '#fff', borderStyle: 'dashed' }}
+            style={{background: '#fff', borderStyle: 'dashed'}}
           >
-            <Icon type="plus" /> 新建标签
+            <Icon type="plus"/> 新建标签
           </Tag>
         )}
       </StandardModal>
+    )
+  }
+
+  renderTabs(){
+    return(
+      <Tabs activeKey={this.state.currentQuestionType} onChange={currentQuestionType => this.setState({currentQuestionType}, e => this.getList(1))} type='card'>
+        <TabPane key='' tab='全部'/>
+        <TabPane key='1' tab='选择题'/>
+        <TabPane key='2' tab='判断题'/>
+        <TabPane key='3' tab='填空题'/>
+        <TabPane key='4' tab='问答题'/>
+        <TabPane key='5' tab='操作题'/>
+      </Tabs>
     )
   }
 
@@ -1285,7 +1301,7 @@ export default class extends PureComponent {
           }
         }
     } = this.props;
-    const {modal, basisModal,tagModal} = this.state;
+    const {modal, basisModal, tagModal} = this.state;
     const actions = [
       {
         isShow: true,
@@ -1325,34 +1341,30 @@ export default class extends PureComponent {
         title: `题目列表`,
         actions,
         extra: this.renderSearchForm(),
-        tabs: {
-          items: [
-            {title: '全部', key: ''},
-            {title: '选择题', key: '1'},
-            {title: '判断题', key: '2'},
-            {title: '填空题', key: '3'},
-            {title: '问答题', key: '4'},
-            {title: '操作题', key: '5'},
-          ],
-          activeKey: questionType || '',
-          onTabChange: tab => utils.changeFilter({questionType: tab}).then(_ => this.getList(1)),
-        },
       },
       footer: {
         pagination: pagination({pageIndex, total}, this.getList),
       },
       body: {
-        center: this.renderList(),
+        center: (
+          <div>
+            {this.renderTabs()}
+            <Row>
+              <Col span={6}>
+                <DictTree
+                  expand
+                  init
+                  typeCode="question-category"
+                  handleSelect={code => this.changeCategory(code[0])}
+                />
+              </Col>
+              <Col span={18}>
+                {this.renderList()}
+              </Col>
+            </Row>
+          </div>),
         loading: loading.effects[`${modelNameSpace}/get`],
       },
-      left: (
-        <DictTree
-          expand
-          init
-          typeCode="question-category"
-          handleSelect={code => this.changeCategory(code[0])}
-        />
-      ),
     };
 
     return (
@@ -1360,7 +1372,7 @@ export default class extends PureComponent {
         <FxLayout {...fxLayoutProps} />
         {modal.visible ? this.renderModal() : null}
         {basisModal.visible ? this.renderBasisModal() : null}
-        {tagModal.visible?this.renderTagModal():null}
+        {tagModal.visible ? this.renderTagModal() : null}
       </Fragment>
     )
 

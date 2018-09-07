@@ -21,16 +21,17 @@ export default class extends React.Component {
   }
 
   render() {
-    const {scroll, loading, children, mask, ...restProps} = this.props;
+    const {scroll, loading, children, mask,zIndex, ...restProps} = this.props;
     let needMask = mask === undefined ? true : mask;
+    let zIndexProps=zIndex?{style:{zIndex,}}:{};
     const {uid} = this.state;
     return (
       <div>
-        {needMask ? <div className={styles.modalMask}></div> : null}
+        {needMask ? <div className={styles.modalMask} {...zIndexProps}></div> : null}
         <Draggable
           handle=".ant-modal-header"
         >
-          <div id={`dragger_${uid}`} className={styles.draggerContainer}>
+          <div id={`dragger_${uid}`} className={styles.draggerContainer} {...zIndexProps}>
             <Modal
               destroyOnClose={true}
               maskClosable={false}
@@ -41,6 +42,7 @@ export default class extends React.Component {
                 ['ant-modal-scroll-no-footer']: scroll && this.props.footer === null,
               })}
               getContainer={() => document.getElementById(`dragger_${uid}`)}
+              {...zIndexProps}
               {...restProps}
             >
               <Loader

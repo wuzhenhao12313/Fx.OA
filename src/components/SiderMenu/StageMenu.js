@@ -165,6 +165,7 @@ export default class extends React.Component {
         <div
           id="stage"
           className={styles.stageTop}
+          style={style}
           >
           {this.renderTopStage()}
         </div>

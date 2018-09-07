@@ -4,6 +4,7 @@ import { LocaleProvider, Spin } from 'antd';
 import zhCN from 'antd/lib/locale-provider/zh_CN';
 import dynamic from 'dva/dynamic';
 import { getRouterData } from './common/router';
+import Loader from './myComponents/Fx/Loader/';
 
 import styles from './index.less';
 

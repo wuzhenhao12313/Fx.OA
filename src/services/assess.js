@@ -58,3 +58,7 @@ export async function addAssessEmployee(params) {
 export async function getEmployeeScoreList(params) {
   return Http.AutoError.Get(`${prefix}/GetEmployeeScoreList`, params);
 }
+
+export async function getRecordUserList(params) {
+  return Http.AutoError.Get(`${prefix}/getRecordUserList`, params);
+}

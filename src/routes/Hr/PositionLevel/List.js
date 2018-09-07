@@ -1,6 +1,6 @@
 import React, {PureComponent} from 'react';
 import {connect} from 'dva';
-import {Switch, Input, Modal, Badge, InputNumber} from 'antd';
+import {Switch, Input, Modal, Badge, InputNumber, Tabs, Button} from 'antd';
 import Component from '../../../utils/rs/Component';
 import Format from '../../../utils/rs/Format';
 import Convert from '../../../utils/rs/Convert';
@@ -16,6 +16,7 @@ import Pagination from '../../../myComponents/Fx/Pagination';
 
 const modelNameSpace = 'position_level';
 const Fragment = React.Fragment;
+const TabPane = Tabs.TabPane;
 
 @connect(state => ({
   [modelNameSpace]: state[modelNameSpace],
@@ -31,27 +32,23 @@ export default class extends PureComponent {
         title: '岗位',
         dataIndex: 'levelGroupName',
         key: 'levelGroupName',
-        width: 180,
       },
       {
         title: '等级',
         dataIndex: 'levelCode',
         key: 'levelCode',
-        width: 60,
       },
       {
         title: '基本工资',
         dataIndex: 'levelSalary',
         key: 'levelSalary',
         className: 'align-center',
-        width: 200,
         children: [
           {
             title: '苏州公司',
             dataIndex: 'sz',
             key: 'sz',
             className: 'align-center',
-            width: 100,
             render: (text, row) => {
               const {columnList} = this.props;
               let value = 0;
@@ -72,7 +69,6 @@ export default class extends PureComponent {
             dataIndex: 'cd',
             key: 'cd',
             className: 'align-center',
-            width: 100,
             render: (text, row) => {
               const {columnList} = this.props;
               let value = 0;
@@ -94,13 +90,11 @@ export default class extends PureComponent {
         title: '职级描述',
         dataIndex: 'levelName',
         key: 'levelName',
-        width: 100,
       },
       {
         title: '状态',
         dataIndex: 'status',
         key: 'status',
-        width: 100,
         render: (text) => {
           const info = this.getBadgeInfo(text);
           return <Badge status={info.status} text={info.text}/>;
@@ -110,7 +104,7 @@ export default class extends PureComponent {
         title: '操作',
         dataIndex: 'op',
         key: 'op',
-        width: 200,
+        align: 'right',
         render: (text, record) => {
           const {actionList} = this.props;
           const action = [
@@ -178,11 +172,13 @@ export default class extends PureComponent {
     salaryModal: {
       visible: false,
       levelID: 0,
-    }
+    },
+    activeKey: 'business',
   };
 
   getList = (page) => {
     const {model, [modelNameSpace]: {current, pageIndex, pageSize}} = this.props;
+    const {activeKey} = this.state;
     model.setState({
       pageIndex: page || pageIndex,
       data: {
@@ -191,7 +187,7 @@ export default class extends PureComponent {
       }
     }).then(() => {
       model.get({
-        positionLevelGroup: current,
+        positionLevelGroup: activeKey,
         pageIndex,
         pageSize,
       });
@@ -447,26 +443,23 @@ export default class extends PureComponent {
       [modelNameSpace]: {data: {list,}}, actionList,
     } = this.props;
     const {columns} = this.state;
-    const actions = [
-      {
-        isShow: actionList.contains('add'),
-        button: {
-          text: '新增',
-          className: 'ant-btn-default',
-          icon: "plus",
-          onClick: () => this.toggleModal({visible: true, isAdd: true, content: null, title: '添加职位等级'})
-        },
-      },
-    ];
     return (
-      <StandardTable
-        id="oa-hr-position-level-list"
-        rowKey={record => record.levelID}
-        actions={actions}
-        columns={columns}
-        dataSource={list}
-        page={false}
-      />
+      <div>
+        <Tabs activeKey={this.state.activeKey} onChange={activeKey => this.setState({activeKey}, e => this.getList())} type='card'>
+          <TabPane key='business' tab='业务岗'/>
+          <TabPane key='manage' tab='高管'/>
+          <TabPane key='software-engineer' tab='软件工程师'/>
+          <TabPane key='functional-post' tab='职能岗'/>
+        </Tabs>
+        <StandardTable
+          id="oa-hr-position-level-list"
+          rowKey={record => record.levelID}
+          columns={columns}
+          dataSource={list}
+          page={false}
+        />
+      </div>
+
     );
   }
 
@@ -476,17 +469,26 @@ export default class extends PureComponent {
 
     const fxLayoutProps = {
       header: {
-        title:'职级列表',
-        tabs: {
-          items: [
-            {title: '业务岗', key: 'business'},
-            {title: '高管', key: 'manage'},
-            {title: '软件工程师', key: 'software-engineer'},
-            {title: '职能岗', key: 'functional-post'},
-          ],
-          activeKey: current,
-          onTabChange: tab => model.setState({current: tab}).then(_ => this.getList(1)),
-        }
+        title: '职级列表',
+        actions: [
+          {
+            button: {
+              text: '添加职位等级',
+              type: 'primary',
+              icon: 'plus',
+              onClick:() => this.toggleModal({visible: true, isAdd: true, content: null, title: '添加职位等级'})
+            }
+          },
+          {
+            button: {
+              text: '刷新',
+              icon: 'retweet',
+              type: 'primary',
+              ghost: true,
+              onClick:() => this.getList()
+            }
+          }
+        ],
       },
       body: {
         loading: loading.effects[`${modelNameSpace}/get`],

@@ -11,8 +11,16 @@ export async function getCount(params) {
   return Http.AutoError.Get(`${prefix}/GetCount`, params);
 }
 
+export async function getEmployeeCount(params) {
+  return Http.AutoError.Get(`${prefix}/GetEmployeeCount`, params);
+}
+
 export async function getInfo(params) {
   return Http.AutoError.Get(`${prefix}/GetInfo`, params);
+}
+
+export async function getLeaveUserApplyByID(params) {
+  return Http.AutoError.Get(`${prefix}/GetLeaveUserApplyByID`, params);
 }
 
 export async function getInfoByNo(params) {
@@ -40,8 +48,35 @@ export async function add(params) {
 }
 
 export async function edit(params) {
-  console.log(params)
   return Http.AutoError.Post(`${prefix}/Edit`, params);
+}
+
+export async function editProbationDate(params) {
+  return Http.AutoError.Post(`${prefix}/EditProbationDate`, params);
+}
+
+export async function probationUser(params) {
+  return Http.AutoError.Post(`${prefix}/probationUser`, params);
+}
+
+export async function userLeaveApply(params) {
+  return Http.AutoError.Post(`${prefix}/UserLeaveApply`, params);
+}
+
+export async function editUserLeaveApply(params) {
+  return Http.AutoError.Post(`${prefix}/editUserLeaveApply`, params);
+}
+
+export async function cancelLeaveUser(params) {
+  return Http.AutoError.Post(`${prefix}/CancelLeaveUser`, params);
+}
+
+export async function confirmLeaveUser(params) {
+  return Http.AutoError.Post(`${prefix}/ConfirmLeaveUser`, params);
+}
+
+export async function reEntry(params) {
+  return Http.AutoError.Post(`${prefix}/ReEntry`, params);
 }
 
 export async function remove(params) {

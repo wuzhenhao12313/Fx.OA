@@ -6,3 +6,5 @@ const prefix = `${Config.GetConfig('fxService')}/OA/Assess/Config`;
 export async function getConfig(params) {
   return Http.AutoError.Get(`${prefix}/GetConfig`, params);
 }
+
+

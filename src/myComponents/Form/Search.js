@@ -1,5 +1,6 @@
 import React, {PureComponent} from 'react';
 import {Form, Row, Button, Icon, Tag, Popover, Select} from 'antd';
+import moment from 'moment';
 import {IsArray} from '../../utils/rs/Util';
 import TagRadio from '../Fx/TagRadio';
 import AdvanceSearch from './AdvancedSearch';
@@ -16,6 +17,7 @@ export default class extends React.Component {
       visible: false,
     },
     advSearchVisible: false,
+    advExpand: false,
   }
 
   search = () => {
@@ -35,10 +37,34 @@ export default class extends React.Component {
     });
   }
 
-  getRow(row, idx) {
-    row = IsArray(row) ? row : [row];
-    const {item, onSearch, advSearch, searchTags, reset,advExpand,onToggleAdvSearch} = this.props;
+  getRow(row, idx, onlyButton) {
+    const {advExpand} = this.state;
+    const {item, onSearch, advSearch, searchTags, reset} = this.props;
     const {form: {getFieldDecorator}} = this.props;
+    if (onlyButton) {
+      return (
+        <Fragment>
+          {advSearch ?
+            <FormItem key={idx + 2}>
+              <Button
+                onClick={e => this.setState({advExpand: !this.state.advExpand})}>
+                <Icon type={'filter'}/>
+                {advExpand ? '收起' : '筛选/排序'}
+              </Button>
+              {advExpand ? <span className={styles.sanjiao}></span> : null}
+            </FormItem> : null
+          }
+          {searchTags ?
+            <FormItem key={idx + 2}>
+              <Popover placement="bottomLeft" title={null} content={this.renderTagsBar()} trigger="click">
+                <Button icon='tag'>快捷搜索</Button>
+              </Popover>
+            </FormItem> : null
+          }
+        </Fragment>
+      )
+    }
+    row = IsArray(row) ? row : [row];
     return (
       <Row key={idx}>
         {row.map((i) => {
@@ -65,18 +91,17 @@ export default class extends React.Component {
         {idx === item.length - 1 && advSearch ?
           <FormItem key={idx + 2}>
             <Button
-              type="default"
-              className="ant-btn-default"
-              onClick={e => onToggleAdvSearch()}>
-              高级搜索
-              <Icon type={advExpand ? 'up' : 'down'}/>
+              onClick={e => this.setState({advExpand: !this.state.advExpand})}>
+              <Icon type={'filter'}/>
+              {advExpand ? '收起' : '筛选/排序'}
             </Button>
+            {advExpand ? <span className={styles.sanjiao}></span> : null}
           </FormItem> : null
         }
         {idx === item.length - 1 && searchTags ?
           <FormItem key={idx + 2}>
             <Popover placement="bottomLeft" title={null} content={this.renderTagsBar()} trigger="click">
-              <Button type="default" className="ant-btn-default" icon='tag'>快捷搜索</Button>
+              <Button icon='tag'>快捷搜索</Button>
             </Popover>
           </FormItem> : null
         }
@@ -84,9 +109,31 @@ export default class extends React.Component {
     );
   }
 
+  getKeysText = (key) => {
+    let {filters} = this.props;
+    const {type, keys,} = filters;
+    if(!type){
+      return keys[key].join(',');
+    }
+    const _type = type[key];
+    let result = null;
+    if (_type) {
+      switch (_type) {
+        case 'rangeDate':
+          const value = keys[key];
+          const left = moment(value[0]).format('YYYY-MM-DD');
+          const right = moment(value[1]).format('YYYY-MM-DD');
+          result = `${left} 至 ${right}`;
+          break;
+      }
+      return result;
+    }
+    return keys[key].join(',');
+  }
+
   renderFilterBar() {
     let {filters} = this.props;
-    const {labels, keys, onClearFilter} = filters;
+    const {labels, keys, type, onClearFilter} = filters;
     return (
       <div>
         {keys && Object.keys(keys).length > 0 ?
@@ -100,7 +147,8 @@ export default class extends React.Component {
                     <Tag
                       key={key}
                       closable
-                      onClose={e => onClearFilter({[key]: null})}>{labels[key]}：{keys[key].join(',')}
+                      onClose={e => onClearFilter({[key]: null})}>
+                      {labels[key]}：{this.getKeysText(key)}
                     </Tag>
                   )
                 }
@@ -130,7 +178,7 @@ export default class extends React.Component {
   }
 
   renderSorter() {
-    const {sorter} = this.props;
+    const {sorter,right} = this.props;
     return (
       <div style={{float: 'right', right: 0, top: 0}}>
         {sorter ?
@@ -155,6 +203,7 @@ export default class extends React.Component {
             </Select>
           </Fragment> : null
         }
+        {right}
       </div>
     )
   }
@@ -162,39 +211,51 @@ export default class extends React.Component {
   renderAdvSearch() {
     const {advSearch, form} = this.props;
     let {filters} = this.props;
-    const {onClearFilter} = filters;
-    const {formItem, onSearch} = advSearch;
+    const {onClearFilter} = filters || {};
+    const {formItem, onSearch, reset} = advSearch;
     return (
       <AdvanceSearch
         formItem={formItem}
         form={form}
-        reset={keys => onClearFilter(keys)}
+        reset={keys => {
+          if (reset) {
+            reset();
+          } else {
+            onClearFilter(keys);
+          }
+        }}
         onSearch={onSearch}
       />
     )
   }
 
   render() {
-    const {item, style, wrappedComponentRef, filters, advSearch, sorter,advExpand} = this.props;
+    const {item, style, wrappedComponentRef, filters, advSearch, sorter, extra,right} = this.props;
+    const {advExpand} = this.state;
     const _ref = wrappedComponentRef ? {wrappedComponentRef: wrappedComponentRef} : {};
     return (
       <div className={styles.searchForm}>
         <div className={styles.mainForm}
-             style={{display: 'inline-block', maxWidth: `calc(100% - ${sorter ? 200 : 0}px)`}}>
+             style={{display: 'inline-block'}}>
           <Form layout="inline" style={style} {..._ref}>
-            {item.map((row, idx) => {
+            {!item ? this.getRow(null, -1, true) : null}
+            {item && item.map((row, idx) => {
               return this.getRow(row, idx);
             })}
           </Form>
+          <div style={{float: 'right'}}>{extra}</div>
+          <div style={{clear:'both'}}></div>
         </div>
-        {sorter ? <div className={styles.sorterWrapper} style={{float: 'right', right: 0, top: 0}}>
-          {this.renderSorter()}
-        </div> : null}
-        {filters ? this.renderFilterBar() : null}
+        {sorter||right ?
+          <div className={styles.sorterWrapper} style={{float: 'right', right: 0, top: 0}}>
+            {this.renderSorter()}
+          </div> : null}
         {advSearch ?
-          <div className={styles.advanceForm} style={{display: advExpand ? 'block' : 'none',transition:'all ease 0.3s'}}>
+          <div className={styles.advanceForm}
+               style={{display: advExpand ? 'block' : 'none', transition: 'all ease 0.3s'}}>
             {this.renderAdvSearch()}
           </div> : null}
+        {filters ? this.renderFilterBar() : null}
       </div>
     );
   }

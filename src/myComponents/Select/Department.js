@@ -13,9 +13,8 @@ export default class extends React.Component {
       url: '/Api/Department/Get',
     }).then(data => {
       const {list} = data;
-
       this.setState({
-        treeList: createTreeData(list.toObject(), 'depName', 'depID'),
+        treeList: createTreeData(list.toObject(), 'depName', 'depID',null),
       })
     });
   }

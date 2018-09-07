@@ -1,6 +1,6 @@
 import React, {PureComponent} from 'react';
 import {connect} from 'dva';
-import {message, Modal, Select, Input} from 'antd';
+import {message, Modal, Select, Input,Badge} from 'antd';
 import Component from '../../../utils/rs/Component';
 import FxLayout from '../../../myComponents/Layout/';
 import StandardTable from '../../../myComponents/Table/Standard';
@@ -119,7 +119,7 @@ export default class extends React.Component {
       model.get({
         pageIndex,
         pageSize,
-        applyStatus: status,
+        applyStatus:null,
       });
     });
   }
@@ -303,6 +303,7 @@ export default class extends React.Component {
         onSubmit={this.saveMaterielItemList}
         item={item}
         width={500}
+        footer={null}
       />
     )
   }
@@ -350,6 +351,31 @@ export default class extends React.Component {
         width: 200,
         render: (text) => {
           return formatDate(text, 'YYYY-MM-DD HH:mm')
+        }
+      },
+      {
+        title:'状态',
+        dataIndex:'status',
+        width:120,
+        render:(text)=>{
+          let obj={};
+          switch (text){
+            case 0:
+              obj.text="申请中";
+              obj.status='processing';
+              break;
+            case 1:
+              obj.text="已同意";
+              obj.status='success';
+              break;
+            case 2:
+              obj.text="已拒绝";
+              obj.status='error';
+              break;
+          }
+          return(
+            <Badge text={obj.text} status={obj.status} />
+          )
         }
       },
       {
@@ -403,15 +429,6 @@ export default class extends React.Component {
     const fxLayoutProps = {
       header: {
         title: `我的物料申请`,
-        tabs: {
-          items: [
-            {title: '申请中', key: "0"},
-            {title: '已同意', key: "1"},
-            {title: '已拒绝', key: "2"},
-          ],
-          activeKey: status || "0",
-          onTabChange: tab => this.setState({status: tab}, () => this.getList(1)),
-        },
       },
       footer: {
         pagination: pagination({pageIndex, total}, this.getList),

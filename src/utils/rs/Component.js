@@ -295,7 +295,6 @@ Component.Utils = (settings) => {
                 let type;
                 const value = filters[key];
                 const formatter = settings.filter[key] ? settings.filter[key].formatter : null;
-
                 if (settings.filter[key] && settings.filter[key].type) {
                   type = settings.filter[key].type;
                   if (type === 'moment') {

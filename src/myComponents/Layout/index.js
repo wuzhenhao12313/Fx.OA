@@ -49,7 +49,7 @@ export default class extends PureComponent {
 
   renderHeader() {
     const {header} = this.props;
-    const {title, left, actions, extra, sorter, tabs, render, padding = true} = header;
+    const {title, left, actions, extra, sorter, tabs, render,right, padding = true,style,titleStyle,type='h1',} = header;
     const _sorter = sorter || {};
     const _tabs = tabs || {};
     const {columns, current, onSorter} = _sorter;
@@ -64,7 +64,6 @@ export default class extends PureComponent {
             [styles.fxLayoutHeader]: true,
             [styles.fxLayoutHeaderNoPadding]: !padding,
             [styles.fxLayoutHeaderHasExtra]: extra || sorter,
-            [styles.fxLayoutHeaderNoTab]: !tabs,
             [styles.fxLayoutHeaderOnlyTitle]: (Object.keys(this.props.header).length === 1 && this.props.header.title),
             [styles.fxLayoutHeaderOnlyTab]: (Object.keys(this.props.header).length === 1 && this.props.header.tabs)
           })}>
@@ -74,9 +73,12 @@ export default class extends PureComponent {
                 title={title}
                 {...leftProps}
                 {...actionProps}
+                style={{...titleStyle}}
+                type={type}
                 bordered={false}
               /> : null}
-            {extra ? <div style={{paddingTop: title ? 8 : 24}}>
+            {extra||right ?
+              <div style={{paddingTop: title ? 8 : 24,...style}}>
               <div>{extra}</div>
               <div style={{float: 'right', right: 0, top: 0}}>
                 {sorter ?
@@ -101,7 +103,9 @@ export default class extends PureComponent {
                     </Select>
                   </Fragment> : null
                 }
+                {right}
               </div>
+                <div style={{clear:'both'}}></div>
             </div> : null}
             {tabs ? <Tabs activeKey={activeKey} onChange={key => onTabChange(key)} type='card'>
               {items.map(_ => {
@@ -132,8 +136,8 @@ export default class extends PureComponent {
     const bodyWidth = `calc(100vw - ${collapsed ? 50 : Config.siderBaseWidth}px)`;
     return (
       <Fragment>
-        {footer ?
-          <div className={styles.fxLayoutFooter} style={{width: bodyWidth}}>
+        {footer&&footer.pagination.total>0 ?
+          <div className={styles.fxLayoutFooter}>
             <Pagination pagination={footer.pagination}/>
           </div> : null}
       </Fragment>
@@ -152,7 +156,6 @@ export default class extends PureComponent {
     const loaderWidth = `calc(100% - ${this.props.left ? 200 : 0}px)`;
     return (
       <div
-        style={{maxHeight: bodyHeight}}
         className={classNames({
           [styles.fxLayoutWrap]: true,
           [styles.fxLayoutWrapOnlyCenter]: (!this.props.left) && (!!center),
@@ -183,7 +186,6 @@ export default class extends PureComponent {
               [styles.fxLayoutWrapLeft]: true,
             })}
             style={{
-              height: wrapperHeight,
               top: `${40 + topStageHeight + footerHeight + headerHeight - (!this.props.header.tabs ? 18 : 27)}px`
             }}
           >
@@ -192,6 +194,7 @@ export default class extends PureComponent {
         {
           render?render:null
         }
+        {footer ? this.renderFooter() : null}
       </div>
     )
   }
@@ -200,13 +203,14 @@ export default class extends PureComponent {
     const {body, header, footer, left,} = this.props;
     const stage = jQuery('#stage');
     return (
-      <div className={classNames({
+      <div
+        className={classNames({
         [styles.fxLayout]: true,
         [styles.fxLayoutStageTop]: Config.webSetting.stageLayout === 'top' && stage.length > 0,
-      })}>
+      })}
+      >
         {header ? this.renderHeader() : null}
         {body ? this.renderBody() : null}
-        {footer ? this.renderFooter() : null}
       </div>
     )
   }

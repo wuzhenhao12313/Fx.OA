@@ -19,8 +19,8 @@
     "test:all": "node ./tests/run-tests.js"
   },
   "dependencies": {
-    "ant-design-pro": "^1.3.0",
-    "antd": "^3.5.1",
+    "ant-design-pro": "^1.4.4",
+    "antd": "^3.7.1",
     "axios": "^0.17.1",
     "babel-polyfill": "^6.26.0",
     "babel-runtime": "^6.9.2",
@@ -34,6 +34,8 @@
     "g-cloud": "^1.0.2-beta",
     "g2": "^2.3.13",
     "g2-plugin-slider": "^1.2.1",
+    "bizcharts": "^3.1.10",
+    "bizcharts-plugin-slider": "^2.0.1",
     "hoist-non-react-statics": "^2.5.0",
     "html2canvas": "^1.0.0-alpha.12",
     "jquery": "^3.3.1",

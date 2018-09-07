@@ -30,23 +30,24 @@ export default class extends React.Component {
   }
 
   render() {
-    const {bordered, title, left, actions, type = 'h1', titleSize, ...restProps} = this.props;
+    const {bordered, title, left, actions, type = 'h1', titleSize, leftBordered, ...restProps} = this.props;
     return (
       <div
         className={classNames({
           [styles.consoleTitle]: true,
           [styles.consoleTitleBordered]: !!bordered,
-
+          [styles.consoleTitleLeftBordered]: !!leftBordered,
           'console-title': true,
         })}
         {...restProps}
       >
         <div className="float-left">
           {title && type === 'h1' ? <h1 style={{fontSize: titleSize}}>{title}</h1> : null}
-          {title && type === 'h2' ? <h2 style={{fontSize: titleSize}}>{title}</h2> :null}
+          {title && type === 'h2' ? <h2 style={{fontSize: titleSize}}>{title}</h2> : null}
           {title && type === 'h3' ? <h3 style={{fontSize: titleSize}}>{title}</h3> : null}
           {title && type === 'h4' ? <h4 style={{fontSize: titleSize}}>{title}</h4> : null}
           {title && type === 'h5' ? <h5 style={{fontSize: titleSize}}>{title}</h5> : null}
+          {title && type === 'custom' ? title : null}
           {left ? left : null}
         </div>
         <div className="float-right">

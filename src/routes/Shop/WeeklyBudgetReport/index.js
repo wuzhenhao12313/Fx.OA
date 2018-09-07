@@ -162,6 +162,7 @@ export default class extends PureComponent {
     return (
       <div>
         <StandardTable
+          bordered
           title={`破浪业务部周预算统计报表（${startDay.format('YYYY-MM-DD')} -  ${endDay.format('YYYY-MM-DD')}） `}
           rowKey={record => record.depID}
           columns={columns}

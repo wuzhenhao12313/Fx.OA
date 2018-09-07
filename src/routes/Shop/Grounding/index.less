@@ -1,0 +1,50 @@
+@import "~antd/lib/style/themes/default.less";
+
+.asinItem {
+  .asin{
+    color:#000;
+    &:hover{
+      color:@primary-color;
+
+    }
+  }
+  .asinDiv {
+    .asinHref{
+      font-size: 15px;
+      color:#000;
+      &:hover{
+        color:@primary-color;
+
+      }
+    }
+    .btn {
+      display: none;
+    }
+    &:hover {
+      .btn {
+        display:inline-block;
+      }
+    }
+  }
+  .addAsin{
+    font-size: 15px;
+    cursor: pointer;
+  }
+}
+
+
+.asin{
+  :global{
+    .ant-tab-title-bar{
+      background-color: #f0f2f5;
+    }
+    .ant-tabs-bar{
+      background-color: #fff;
+    }
+  }
+}
+
+.asinDataCount{
+  min-height: ~"calc(100vh - 106px)";
+  background-color: #f0f2f5;
+}

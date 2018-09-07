@@ -4,7 +4,8 @@
     "transform-runtime",
     "transform-decorators-legacy",
     "transform-class-properties",
-    ["import", { "libraryName": "antd", "libraryDirectory": "es", "style": true }]
+    ["import", { "libraryName": "antd", "libraryDirectory": "es", "style": true },
+    {"libraryName": "ant-design-pro", "libraryDirectory": "lib","style": true,"camel2DashComponentName": false}]
   ],
   "env": {
     "development": {
@@ -15,8 +16,6 @@
   },
   "externals": {
     "g2": "G2",
-    "g-cloud": "Cloud",
-    "g2-plugin-slider": "G2.Plugin.slider",
     "jquery": "jQuery",
     "react" : "React",
     "react-dom": "ReactDOM",

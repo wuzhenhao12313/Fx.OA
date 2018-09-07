@@ -150,12 +150,17 @@ export default class extends React.Component {
   getNowAssess = () => {
     const {model} = this.props;
     model.call("getNowAssess").then(_ => {
-      const {nowAssess: {record, recordConfig}} = this.props[modelNameSpace];
+      const {nowAssess: {record, recordConfig,recordUser,}} = this.props[modelNameSpace];
       if (record) {
         let depList = [];
         recordConfig.forEach(x => {
           depList = depList.concat(x.depIDs.toList());
         });
+        if(recordUser){
+          const {depIDs}=recordUser;
+          let _list=depIDs?depIDs.toList():[];
+          depList=depList.filter(x=>_list.contains(x));
+        }
         this.setState({
           currentDep: depList.length > 0 ? depList[0] : '',
         });
@@ -201,7 +206,7 @@ export default class extends React.Component {
 
   getTabItemMap = () => {
     let map = [];
-    const {nowAssess: {record, recordConfig}} = this.props[modelNameSpace];
+    const {nowAssess: {record, recordConfig,recordUser}} = this.props[modelNameSpace];
     if (record) {
       recordConfig.forEach(x => {
         const {depIDs} = x;
@@ -213,6 +218,11 @@ export default class extends React.Component {
           });
         });
       });
+    }
+    if(recordUser){
+      const {depIDs}=recordUser;
+      let _list=depIDs?depIDs.toList():[];
+      map=map.filter(x=>_list.contains(x.key));
     }
     return map;
   }
@@ -345,8 +355,8 @@ export default class extends React.Component {
   openPop = (managerID) => {
     const {model} = this.props;
     const {currentDep} = this.state;
-    const {nowAssess, assessDetail: {managerList}} = this.props[modelNameSpace];
-    const {id} = nowAssess;
+    const {nowAssess:{record}, assessDetail: {managerList}} = this.props[modelNameSpace];
+    const {id} = record;
     model.call("getEmployeeScoreList", {
       assessID: id,
       depID: currentDep,
@@ -841,6 +851,7 @@ export default class extends React.Component {
 
   renderBody() {
     const {nowAssess: {record, recordConfig}} = this.props[modelNameSpace];
+    const {actionList}=this.props;
     const {
       isEnd,
     } = record || {};
@@ -860,6 +871,7 @@ export default class extends React.Component {
       } = recordConfig.filter(x => x.depIDs.toList().contains(this.state.currentDep.toString()))[0] || {};
       return (
         <div>
+          {actionList.contains('btn')?
           <Form layout='inline' style={{marginBottom: 12}}>
             {isEnd === 0 ?
               <FormItem>
@@ -899,7 +911,7 @@ export default class extends React.Component {
               this.state.isDataChange ?
                 <FormItem style={{float: 'right', marginRight: 0}}><Tag color='red'>更改未保存</Tag></FormItem> : null
             }
-          </Form>
+          </Form>:null}
           <Tabs activeKey={this.state.currentDep} type="card" onChange={tab => this.changeDep(tab)}>
             {depMap.map(dep => {
               return (
@@ -908,7 +920,7 @@ export default class extends React.Component {
             })}
           </Tabs>
           <div style={{maxWidth: 1089}}>
-            <ConsoleTitle title='部门经理考评统计' type='h3' style={{paddingTop: 0}}/>
+            <ConsoleTitle title='部门经理考评统计' type='h3' style={{paddingTop: 0}} leftBordered={true}/>
             <Alert
               style={{marginBottom: 12}}
               message={
@@ -921,7 +933,7 @@ export default class extends React.Component {
               }
             />
             {this.renderManagerTable()}
-            <ConsoleTitle title='部门人员考评统计' type='h3'/>
+            <ConsoleTitle title='部门人员考评统计' type='h3' leftBordered={true}/>
             <Alert
               style={{marginBottom: 12}}
               message={
@@ -961,7 +973,7 @@ export default class extends React.Component {
 
   renderManagerTable = () => {
     const {assessDetail: {managerList}} = this.props[modelNameSpace];
-    const {nowAssess: {record}} = this.props[modelNameSpace];
+    const {nowAssess: {record,recordUser}} = this.props[modelNameSpace];
     const {isEnd} = record || {};
     const columns = [
       {
@@ -969,6 +981,9 @@ export default class extends React.Component {
         width: 55,
         align: 'center',
         render: (text, row) => {
+          if(recordUser){
+            return null
+          }
           if (text === 1) {
             return (
               <Icon
@@ -1002,8 +1017,12 @@ export default class extends React.Component {
         title: '指标完成',
         dataIndex: 'targetScore',
         align: 'center',
+        className: recordUser&&recordUser.m_targetScore.toList()[1]==='0'?'ant-th-disabled':null,
         width: 140,
         render: (text, row) => {
+          if(recordUser&&recordUser.m_targetScore.toList()[1]==='0'){
+            return text;
+          }
           if (isEnd === 0) {
             return (
               <div
@@ -1034,7 +1053,11 @@ export default class extends React.Component {
         dataIndex: 'cooScore',
         align: 'center',
         width: 140,
+        className: recordUser&&recordUser.m_cooScore.toList()[1]==='0'?'ant-th-disabled':null,
         render: (text, row) => {
+          if(recordUser&&recordUser.m_cooScore.toList()[1]==='0'){
+            return text;
+          }
           if (isEnd === 0) {
             return (
               <div
@@ -1062,7 +1085,11 @@ export default class extends React.Component {
         dataIndex: 'gmScore',
         align: 'center',
         width: 140,
+        className: recordUser&&recordUser.m_gmScore.toList()[1]==='0'?'ant-th-disabled':null,
         render: (text, row) => {
+          if(recordUser&&recordUser.m_gmScore.toList()[1]==='0'){
+            return text;
+          }
           if (isEnd === 0) {
             return (
               <div
@@ -1101,7 +1128,11 @@ export default class extends React.Component {
         dataIndex: 'employeeScore',
         align: 'center',
         width: 140,
+        className: recordUser&&recordUser.m_memberScore.toList()[1]==='0'?'ant-th-disabled':null,
         render: (text, row) => {
+          if(recordUser&&recordUser.m_memberScore.toList()[1]==='0'){
+            return text;
+          }
           if (isEnd === 0) {
             return (
               <div
@@ -1157,7 +1188,6 @@ export default class extends React.Component {
 
   renderEmployeeScoreTable() {
     const {currentEmployeeList} = this.props[modelNameSpace];
-
     const columns = [
       {
         title: '组员姓名',
@@ -1186,12 +1216,13 @@ export default class extends React.Component {
         columns={columns}
         dataSource={currentEmployeeList}
         loading={false}
+        emptyProps={{size:'small'}}
       />
     )
   }
 
   renderEmployeeTable = () => {
-    const {nowAssess: {record}} = this.props[modelNameSpace];
+    const {nowAssess: {record,recordUser}} = this.props[modelNameSpace];
     const {isEnd} = record || {};
     const {assessDetail: {employeeList}} = this.props[modelNameSpace];
     const dataSource = employeeList.filter(x => x.depID === this.state.currentDep.toInt());
@@ -1201,6 +1232,9 @@ export default class extends React.Component {
         width: 55,
         align: 'center',
         render: (text, row) => {
+          if(recordUser){
+            return null;
+          }
           if (this.state.editEmployee) {
             return (<Button icon='delete' size='small' type='danger' onClick={e => this.removeAssessEmployee(row.id)}/>)
           }
@@ -1238,8 +1272,12 @@ export default class extends React.Component {
         title: '指标完成',
         dataIndex: 'targetScore',
         align: 'center',
+        className: recordUser&&recordUser.e_targetScore.toList()[1]==='0'?'ant-th-disabled':null,
         width: 120,
         render: (text, row) => {
+          if(recordUser&&recordUser.e_targetScore.toList()[1]==='0'){
+            return text;
+          }
           if (isEnd === 0) {
             return (
               <div
@@ -1321,6 +1359,7 @@ export default class extends React.Component {
         className: 'ant-th-disabled',
         width: 107,
         render: (text, row) => {
+
           if (row.notInRate === 1) {
             return null;
           }
@@ -1340,8 +1379,12 @@ export default class extends React.Component {
         title: '系数修正(%)',
         dataIndex: 'customExtractRate',
         align: 'center',
+        className: recordUser?'ant-th-disabled':null,
         width: 107,
         render: (text, row) => {
+          if(recordUser){
+            return text ? `${text}%` : null;
+          }
           if (isEnd === 1) {
             return text ? `${text}%` : null;
           }

@@ -255,7 +255,7 @@ export default class SiderMenu extends PureComponent {
     };
     const stageProps = stage.childNavList.length > 0 ? {stage: {nav: stage.childNavList, title: stage.title}} : {};
 
-    const theme = Config.webSetting.theme;
+    const theme = 'light';
     return (
       <Fragment>
         <Sider

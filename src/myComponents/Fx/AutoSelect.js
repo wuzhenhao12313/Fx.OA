@@ -49,7 +49,7 @@ export default class extends React.Component {
 
   render() {
     const {options, key, label} = this.state;
-    const {createAntSelect, typeCode, data, ...restProps} = this.props;
+    const {createAntSelect, typeCode, data,ignore=[], ...restProps} = this.props;
     return (
       <Select
         showSearch
@@ -58,7 +58,7 @@ export default class extends React.Component {
         optionFilterProp="children"
         filterOption={(input, option) => this.searchValues(input, option)}
       >
-        {this.props.children ? this.props.children : options.map(x => {
+        {this.props.children ? this.props.children : options.filter(x=>!ignore.contains(x[key])).map(x => {
           return createAntSelect(x, key, label)
         })}
       </Select>

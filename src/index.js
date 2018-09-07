@@ -7,6 +7,7 @@ import onError from './error';
 import './utils/extension';
 // import browserHistory from 'history/createBrowserHistory';
 import './index.less';
+import 'ant-design-pro/dist/ant-design-pro.css';
 // 1. Initialize
 const app = dva({
   ...createLoading({

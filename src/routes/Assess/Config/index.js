@@ -1,5 +1,5 @@
 import React, {PureComponent} from 'react';
-import {Card, Steps, List, Button, message, Row, Col, Modal, Tag, Input, Form, Divider} from 'antd';
+import {Card, Steps, List, Button, message, Row, Col, Modal, Tag, Input, Form, Divider, Icon} from 'antd';
 import {connect} from 'dva';
 import classNames from 'classnames';
 import {fetchApiSync} from '../../../utils/rs/Fetch';
@@ -36,6 +36,7 @@ export default class extends PureComponent {
   componentDidMount() {
     const {model} = this.props;
     model.call("getConfig");
+    model.call("getRecordUserList");
   }
 
   renderForm() {
@@ -75,19 +76,19 @@ export default class extends PureComponent {
           <ConsoleTitle type='h2' title='部门成员分值比率'/>
           <Form className='ant-form-slim ant-form-label-left'>
             <FormItem label='综合素质' {...formItemLayout}>
-              <Input value={e_allRoundScoreRate*100} addonAfter='%' style={{width: 100}}/>
+              <Input value={e_allRoundScoreRate * 100} addonAfter='%' style={{width: 100}}/>
             </FormItem>
             <FormItem label='指标完成' {...formItemLayout}>
-              <Input value={e_targetScoreRate*100} addonAfter='%' style={{width: 100}}/>
+              <Input value={e_targetScoreRate * 100} addonAfter='%' style={{width: 100}}/>
             </FormItem>
             <FormItem label='运营总监考评' {...formItemLayout}>
-              <Input value={e_cooScoreRate*100} addonAfter='%' style={{width: 100}}/>
+              <Input value={e_cooScoreRate * 100} addonAfter='%' style={{width: 100}}/>
             </FormItem>
             <FormItem label='部门经理考评' {...formItemLayout}>
-              <Input value={e_gmScoreRate*100} addonAfter='%' style={{width: 100}}/>
+              <Input value={e_gmScoreRate * 100} addonAfter='%' style={{width: 100}}/>
             </FormItem>
             <FormItem label='工作考评' {...formItemLayout}>
-              <Input value={e_workingScoreRate*100} addonAfter='%' style={{width: 100}}/>
+              <Input value={e_workingScoreRate * 100} addonAfter='%' style={{width: 100}}/>
             </FormItem>
           </Form>
         </div>
@@ -97,19 +98,19 @@ export default class extends PureComponent {
     )
   }
 
-  renderBody(){
+  renderBody() {
     const {config} = this.props[modelNameSpace];
-    const columns=[
+    const columns = [
       {
-        title:'部门',
-        dataIndex:'depIDs',
-        render:(text)=>{
-          text=text||'';
-          return(
+        title: '部门',
+        dataIndex: 'depIDs',
+        render: (text) => {
+          text = text || '';
+          return (
             <div>
               {
-                text.toList().map(dep=>{
-                  return(
+                text.toList().map(dep => {
+                  return (
                     <Tag key={dep}>{formatter[dep]}</Tag>
                   )
                 })
@@ -119,95 +120,310 @@ export default class extends PureComponent {
         }
       },
       {
-        title:'部门经理分值比率',
-        dataIndex:'manager',
-        align:'center',
-        children:[
+        title: '部门经理分值比率',
+        dataIndex: 'manager',
+        align: 'center',
+        children: [
           {
-            title:'基础评分',
-            dataIndex:'m_baseScoreRate',
-            align:'center',
-            render:(text)=>{
-              return text*100+'%';
+            title: '基础评分',
+            dataIndex: 'm_baseScoreRate',
+            align: 'center',
+            render: (text) => {
+              return text * 100 + '%';
             }
           },
           {
-            title:'指标完成',
-            dataIndex:'m_targetScoreRate',
-            align:'center',
-            render:(text)=>{
-              return text*100+'%';
+            title: '指标完成',
+            dataIndex: 'm_targetScoreRate',
+            align: 'center',
+            render: (text) => {
+              return text * 100 + '%';
             }
           },
           {
-            title:'运营总监考评',
-            dataIndex:'m_cooScoreRate',
-            align:'center',
-            render:(text)=>{
-              return text*100+'%';
+            title: '运营总监考评',
+            dataIndex: 'm_cooScoreRate',
+            align: 'center',
+            render: (text) => {
+              return text * 100 + '%';
             }
           },
           {
-            title:'总经理考评',
-            dataIndex:'m_gmScoreRate',
-            align:'center',
-            render:(text)=>{
-              return text*100+'%';
+            title: '总经理考评',
+            dataIndex: 'm_gmScoreRate',
+            align: 'center',
+            render: (text) => {
+              return text * 100 + '%';
             }
           },
           {
-            title:'组员打分',
-            dataIndex:'m_memberScoreRate',
-            align:'center',
-            render:(text)=>{
-              return text*100+'%';
+            title: '组员打分',
+            dataIndex: 'm_memberScoreRate',
+            align: 'center',
+            render: (text) => {
+              return text * 100 + '%';
             }
           },
         ]
       },
       {
-        title:'部门成员分值比率',
-        dataIndex:'employee',
-        align:'center',
-        children:[
+        title: '部门成员分值比率',
+        dataIndex: 'employee',
+        align: 'center',
+        children: [
           {
-            title:'综合素质',
-            dataIndex:'e_allRoundScoreRate',
-            align:'center',
-            render:(text)=>{
-              return text*100+'%';
+            title: '综合素质',
+            dataIndex: 'e_allRoundScoreRate',
+            align: 'center',
+            render: (text) => {
+              return text * 100 + '%';
             }
           },
           {
-            title:'指标完成',
-            dataIndex:'e_targetScoreRate',
-            align:'center',
-            render:(text)=>{
-              return text*100+'%';
+            title: '指标完成',
+            dataIndex: 'e_targetScoreRate',
+            align: 'center',
+            render: (text) => {
+              return text * 100 + '%';
             }
           },
           {
-            title:'运营总监考评',
-            dataIndex:'e_cooScoreRate',
-            align:'center',
-            render:(text)=>{
-              return text*100+'%';
+            title: '运营总监考评',
+            dataIndex: 'e_cooScoreRate',
+            align: 'center',
+            render: (text) => {
+              return text * 100 + '%';
             }
           },
           {
-            title:'部门经理考评',
-            dataIndex:'e_gmScoreRate',
-            align:'center',
-            render:(text)=>{
-              return text*100+'%';
+            title: '部门经理考评',
+            dataIndex: 'e_gmScoreRate',
+            align: 'center',
+            render: (text) => {
+              return text * 100 + '%';
             }
           },
           {
-            title:'工作考评',
-            dataIndex:'e_workingScoreRate',
-            align:'center',
-            render:(text)=>{
-              return text*100+'%';
+            title: '工作考评',
+            dataIndex: 'e_workingScoreRate',
+            align: 'center',
+            render: (text) => {
+              return text * 100 + '%';
+            }
+          },
+        ]
+      }
+    ];
+    return (
+      <div>
+        <ConsoleTitle type='h2' title='部门考核分值比率'/>
+        <StandardTable
+          mode='simple'
+          columns={columns}
+          dataSource={config}
+          rowKey={record => record.id}
+        />
+        <ConsoleTitle type='h2' title='部门考核人员'/>
+        {this.renderRecordUserList()}
+      </div>
+    )
+  }
+
+  renderRecordUserList() {
+    const {recordUserList} = this.props[modelNameSpace];
+    const columns = [
+      {
+        title: '姓名',
+        dataIndex: 'userName',
+      },
+      {
+        title: '部门',
+        dataIndex: 'depIDs',
+        render: (text) => {
+          text = text || '';
+          return (
+            <div>
+              {
+                text.toList().map(dep => {
+                  return (
+                    <Tag key={dep}>{formatter[dep]}</Tag>
+                  )
+                })
+              }
+            </div>
+          )
+        }
+      },
+      {
+        title: '部门经理评分项',
+        dataIndex: 'manager',
+        align: 'center',
+        children: [
+          {
+            title: '基础评分',
+            dataIndex: 'm_baseScore',
+            align: 'center',
+            render: (text) => {
+              const list = text.toList();
+              return (
+                <div>
+                  <span>查看</span>
+                  <Icon type={list[0] === '1' ? 'check' : 'close'} style={{color:list[0] === '1'?'green':'red'}}/>
+                  <span style={{marginLeft:10}}>编辑</span>
+                  <Icon type={list[1] === '1' ? 'check' : 'close'} style={{color:list[1] === '1'?'green':'red'}}/>
+                </div>
+              );
+            }
+          },
+          {
+            title: '指标完成',
+            dataIndex: 'm_targetScore',
+            align: 'center',
+            render: (text) => {
+              const list = text.toList();
+              return (
+                <div>
+                  <span>查看</span>
+                  <Icon type={list[0] === '1' ? 'check' : 'close'} style={{color:list[0] === '1'?'green':'red'}}/>
+                  <span style={{marginLeft:10}}>编辑</span>
+                  <Icon type={list[1] === '1' ? 'check' : 'close'} style={{color:list[1] === '1'?'green':'red'}}/>
+                </div>
+              );
+            }
+          },
+          {
+            title: '运营总监考评',
+            dataIndex: 'm_cooScore',
+            align: 'center',
+            render: (text) => {
+              const list = text.toList();
+              return (
+                <div>
+                  <span>查看</span>
+                  <Icon type={list[0] === '1' ? 'check' : 'close'} style={{color:list[0] === '1'?'green':'red'}}/>
+                  <span style={{marginLeft:10}}>编辑</span>
+                  <Icon type={list[1] === '1' ? 'check' : 'close'} style={{color:list[1] === '1'?'green':'red'}}/>
+                </div>
+              );
+            }
+          },
+          {
+            title: '总经理考评',
+            dataIndex: 'm_gmScore',
+            align: 'center',
+            render: (text) => {
+              const list = text.toList();
+              return (
+                <div>
+                  <span>查看</span>
+                  <Icon type={list[0] === '1' ? 'check' : 'close'} style={{color:list[0] === '1'?'green':'red'}}/>
+                  <span style={{marginLeft:10}}>编辑</span>
+                  <Icon type={list[1] === '1' ? 'check' : 'close'} style={{color:list[1] === '1'?'green':'red'}}/>
+                </div>
+              );
+            }
+          },
+          {
+            title: '组员打分',
+            dataIndex: 'm_memberScore',
+            align: 'center',
+            render: (text) => {
+              const list = text.toList();
+              return (
+                <div>
+                  <span>查看</span>
+                  <Icon type={list[0] === '1' ? 'check' : 'close'} style={{color:list[0] === '1'?'green':'red'}}/>
+                  <span style={{marginLeft:10}}>编辑</span>
+                  <Icon type={list[1] === '1' ? 'check' : 'close'} style={{color:list[1] === '1'?'green':'red'}}/>
+                </div>
+              );
+            }
+          },
+        ]
+      },
+      {
+        title: '部门成员分值比率',
+        dataIndex: 'employee',
+        align: 'center',
+        children: [
+          {
+            title: '综合素质',
+            dataIndex: 'e_allRoundScore',
+            align: 'center',
+            render: (text) => {
+              const list = text.toList();
+              return (
+                <div>
+                  <span>查看</span>
+                  <Icon type={list[0] === '1' ? 'check' : 'close'} style={{color:list[0] === '1'?'green':'red'}}/>
+                  <span style={{marginLeft:10}}>编辑</span>
+                  <Icon type={list[1] === '1' ? 'check' : 'close'} style={{color:list[1] === '1'?'green':'red'}}/>
+                </div>
+              );
+            }
+          },
+          {
+            title: '指标完成',
+            dataIndex: 'e_targetScore',
+            align: 'center',
+            render: (text) => {
+              const list = text.toList();
+              return (
+                <div>
+                  <span>查看</span>
+                  <Icon type={list[0] === '1' ? 'check' : 'close'} style={{color:list[0] === '1'?'green':'red'}}/>
+                  <span style={{marginLeft:10}}>编辑</span>
+                  <Icon type={list[1] === '1' ? 'check' : 'close'} style={{color:list[1] === '1'?'green':'red'}}/>
+                </div>
+              );
+            }
+          },
+          {
+            title: '运营总监考评',
+            dataIndex: 'e_cooScore',
+            align: 'center',
+            render: (text) => {
+              const list = text.toList();
+              return (
+                <div>
+                  <span>查看</span>
+                  <Icon type={list[0] === '1' ? 'check' : 'close'} style={{color:list[0] === '1'?'green':'red'}}/>
+                  <span style={{marginLeft:10}}>编辑</span>
+                  <Icon type={list[1] === '1' ? 'check' : 'close'} style={{color:list[1] === '1'?'green':'red'}}/>
+                </div>
+              );
+            }
+          },
+          {
+            title: '部门经理考评',
+            dataIndex: 'e_gmScore',
+            align: 'center',
+            render: (text) => {
+              const list = text.toList();
+              return (
+                <div>
+                  <span>查看</span>
+                  <Icon type={list[0] === '1' ? 'check' : 'close'} style={{color:list[0] === '1'?'green':'red'}}/>
+                  <span style={{marginLeft:10}}>编辑</span>
+                  <Icon type={list[1] === '1' ? 'check' : 'close'} style={{color:list[1] === '1'?'green':'red'}}/>
+                </div>
+              );
+            }
+          },
+          {
+            title: '工作考评',
+            dataIndex: 'e_workingScore',
+            align: 'center',
+            render: (text) => {
+              const list = text.toList();
+              return (
+                <div>
+                  <span>查看</span>
+                  <Icon type={list[0] === '1' ? 'check' : 'close'} style={{color:list[0] === '1'?'green':'red'}}/>
+                  <span style={{marginLeft:10}}>编辑</span>
+                  <Icon type={list[1] === '1' ? 'check' : 'close'} style={{color:list[1] === '1'?'green':'red'}}/>
+                </div>
+              );
             }
           },
         ]
@@ -217,8 +433,8 @@ export default class extends PureComponent {
       <StandardTable
         mode='simple'
         columns={columns}
-        dataSource={config}
-        rowKey={record=>record.id}
+        dataSource={recordUserList}
+        rowKey={record => record.id}
       />
     )
   }
@@ -251,7 +467,7 @@ export default class extends PureComponent {
         title: '考核配置'
       },
       body: {
-        center:this.renderBody(),
+        center: this.renderBody(),
       },
     }
     return (

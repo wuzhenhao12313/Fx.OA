@@ -20,6 +20,7 @@ import AutoSelect from '../../../myComponents/Fx/AutoSelect';
 import StandardTable from '../../../myComponents/Table/Standard';
 import TableActionBar from '../../../myComponents/Table/TableActionBar';
 import StandardDatePicker from '../../../myComponents/Date/StandardDatePicker';
+import StandardRangePicker from '../../../myComponents/Date/StandardRangePicker';
 import EditModal from '../../../myComponents/Fx/EditModal';
 import ImageUploader from '../../../myComponents/Fx/ImageUploader';
 import Picture from '../../../myComponents/Fx/Picture';
@@ -28,7 +29,6 @@ import EditPanel from './Edit';
 import DetailPanel from './Detail';
 import styles from './index.less';
 import {fetchApiSync} from "../../../utils/rs/Fetch";
-import {createTreeData} from "../../../utils/utils";
 
 const modelNameSpace = 'employee';
 const Fragment = React.Fragment;
@@ -46,14 +46,6 @@ const filterSettings = {
   jobNumber: {
     label: '员工工号',
   },
-  dateType: {
-    label: '日期类型',
-    formatter: {
-      ['entry']: '入职日期',
-      ['leave']: '离职日期',
-      ['correction']: '转正日期',
-    }
-  },
   startDate: {
     label: '开始日期',
     type: 'moment',
@@ -67,9 +59,8 @@ const filterSettings = {
     formatter: {
       ['working']: '已转正',
       ['trial']: '试用期',
-      ['internShip']: '实习期',
-      ['temporary']: '临时员工',
       ['retire']: '已退休',
+      ['waiting-quit']:'待离职',
       ['quit']: '已离职',
     }
   },
@@ -101,9 +92,9 @@ positionList.forEach(position => {
 const filterLabels = {
   empName: '员工姓名',
   jobNumber: '员工工号',
-  dateType: '日期类型',
-  startDate: '开始日期',
-  endDate: '结束日期',
+  entryDate: '入职日期',
+  probationDate: '转正日期',
+  leaveDate:'离职日期',
   workStatus: '工作状态',
   sex: '性别',
   depID: '部门',
@@ -159,19 +150,15 @@ export default class extends PureComponent {
       key: 'default_monthEntry',
       title: '本月入职',
       value: {
-        dateType: 'entry',
-        startDate: moment().startOf('month').format('YYYY-MM-DD'),
-        endDate: moment().endOf('month').format('YYYY-MM-DD'),
+        entryDate:[moment().startOf('month'),moment().endOf('month')],
       }
     },
     {
       key: 'default_monthLeave',
       title: '本月离职',
       value: {
-        dateType: 'leave',
         workStatus: ['quit'],
-        startDate: moment().startOf('month').format('YYYY-MM-DD'),
-        endDate: moment().endOf('month').format('YYYY-MM-DD'),
+        leaveDate:[moment().startOf('month'),moment().endOf('month')],
       }
     },
   ];
@@ -181,18 +168,29 @@ export default class extends PureComponent {
     const searchForm = this.ref.searchForm.props.form;
     const {getFieldsValue} = searchForm;
     const searchValues = getFieldsValue();
-    searchValues.startDate = searchValues.startDate ? searchValues.startDate.format('YYYY-MM-DD') : null;
-    searchValues.endDate = searchValues.endDate ? searchValues.endDate.format('YYYY-MM-DD') : null;
+    const {entryDate,probationDate,leaveDate}=searchValues;
+    const entryStartDate=entryDate&&entryDate.length>0?entryDate[0].format('YYYY-MM-DD'):null;
+    const entryEndDate=entryDate&&entryDate.length>0?entryDate[1].format('YYYY-MM-DD'):null;
+    const probationStartDate=probationDate&&probationDate.length>0?probationDate[0].format('YYYY-MM-DD'):null;
+    const probationEndDate=probationDate&&probationDate.length>0?probationDate[1].format('YYYY-MM-DD'):null;
+    const leaveStartDate=leaveDate&&leaveDate.length>0?leaveDate[0].format('YYYY-MM-DD'):null;
+    const leaveEndDate=leaveDate&&leaveDate.length>0?leaveDate[1].format('YYYY-MM-DD'):null;
     model.setState({
       pageIndex: page || pageIndex,
       data: {
         list: [],
-        total: total,
+        total,
       }
     }).then(() => {
       model.get({
         ...filter,
         ...searchValues,
+        entryStartDate,
+        entryEndDate,
+        probationStartDate,
+        probationEndDate,
+        leaveStartDate,
+        leaveEndDate,
         ...sorter,
         pageIndex,
         pageSize,
@@ -215,11 +213,12 @@ export default class extends PureComponent {
           });
         }
         model.remove({deleteItems: selectItems}).then(success => {
-          if (success)
+          if (success) {
             model.setState({
               selectItems: [],
             });
-          this.getList();
+            this.getList();
+          }
         });
       }
     });
@@ -410,10 +409,10 @@ export default class extends PureComponent {
           jobNumber,
           empName,
           workStatus,
-          dateType,
           sex,
-          startDate,
-          endDate,
+          entryDate,
+          probationDate,
+          leaveDate,
           depID,
           userPosition,
         },
@@ -463,6 +462,11 @@ export default class extends PureComponent {
     const filters = {
       labels: filterLabels,
       keys: filterKeys,
+      type:{
+        entryDate:'rangeDate',
+        probationDate:'rangeDate',
+        leaveDate:'rangeDate',
+      },
       onClearFilter: key => {
         utils.clearFilters(key, this.ref.searchForm.props.form, e => this.getList(1))
       }
@@ -476,43 +480,20 @@ export default class extends PureComponent {
     const advProps = {
       formItem: [
         {
-          label: '时间类型',
-          key: 'dateType',
-          initialValue: dateType,
-          render: () => {
-            return (
-              <Select placeholder="请选择需要查询的时间类型" allowClear>
-                <Option value={'entry'}>入职日期</Option>
-                <Option value={'correction'}>转正日期</Option>
-                <Option value={'leave'}>离职日期</Option>
-              </Select>
+          label: '姓名',
+          key: 'empName',
+          render:()=>{
+            return(
+              <Input placeholder="输入员工姓名模糊查询"/>
             )
           }
         },
         {
-          label: '开始日期',
-          key: 'startDate',
-
-          initialValue: startDate ? moment(startDate) : null,
-          render: () => {
-            return (<StandardDatePicker style={{width: '100%'}} allowClear/>)
-          }
-        },
-        {
-          label: '结束日期',
-          key: 'endDate',
-          initialValue: endDate ? moment(endDate) : null,
-          render: () => {
-            return (<StandardDatePicker style={{width: '100%'}} allowClear/>)
-          }
-        },
-        {
-          label: '性别',
-          key: 'sex',
-          initialValue: sex,
-          render: () => {
-            return (
-              <AutoSelect typeCode="sex" allowClear/>
+          label:'工号',
+          key:'jobNumber',
+          render:()=>{
+            return(
+              <Input placeholder='输入员工工号精确查询，多个用 "," 隔开'/>
             )
           }
         },
@@ -525,6 +506,41 @@ export default class extends PureComponent {
           }
         },
         {
+          label: '入职日期',
+          key: 'entryDate',
+          initialValue: entryDate ,
+          render: () => {
+            return (<StandardRangePicker style={{width: '100%'}} allowClear/>)
+          }
+        },
+        {
+          label: '转正日期',
+          key: 'probationDate',
+          initialValue:probationDate,
+          render: () => {
+            return (<StandardRangePicker  style={{width: '100%'}} allowClear/>)
+          }
+        },
+        {
+          label: '离职日期',
+          key: 'leaveDate',
+          initialValue: leaveDate,
+          render: () => {
+            return (<StandardRangePicker  style={{width: '100%'}} allowClear/>)
+          }
+        },
+        {
+          label: '性别',
+          key: 'sex',
+          initialValue: sex,
+          render: () => {
+            return (
+              <AutoSelect typeCode="sex" allowClear/>
+            )
+          }
+        },
+
+        {
           label: '职位',
           key: 'userPosition',
           initialValue: userPosition,
@@ -535,6 +551,14 @@ export default class extends PureComponent {
                 treeCheckable={false}
                 treeCheckStrictly={false}
               />);
+          }
+        },
+        {
+          label: '工作状态',
+          key: 'workStatus',
+          initialValue:workStatus && workStatus.length > 0 ? workStatus[0]:[],
+          render:()=>{
+            return (<AutoSelect typeCode="job-status" allowClear/>)
           }
         }
 
@@ -553,15 +577,15 @@ export default class extends PureComponent {
       current: {sorterColumn, sorterType},
       onSorter: value => utils.changeSorter(value).then(_ => this.getList(1)),
     };
+    const right={
+
+    };
     return (
       <SearchForm
-        item={item}
         filters={filters}
         sorter={sorterProps}
         searchTags={tagProps}
         advSearch={advProps}
-        onToggleAdvSearch={e => this.setState({advExpand: !this.state.advExpand})}
-        advExpand={this.state.advExpand}
         wrappedComponentRef={node => this.ref.searchForm = node}
       />
     )
@@ -660,19 +684,20 @@ export default class extends PureComponent {
       [modelNameSpace]: {data: {list,}, selectItems, sorter}, model, loading
     } = this.props;
     const columns = [
+      // {
+      //   title: '照片',
+      //   dataIndex: 'workPhotoUrl',
+      //   key: 'workPhotoUrl',
+      //   hide: true,
+      //   render: (value, row, index) => {
+      //     return <Picture size={[45, 60]} modalSize={[400, 498]} value={value}/>;
+      //   },
+      // },
       {
-        title: '照片',
-        dataIndex: 'workPhotoUrl',
-        key: 'workPhotoUrl',
-        hide: true,
-        render: (value, row, index) => {
-          return <Picture size={[45, 60]} modalSize={[400, 498]} value={value}/>;
-        },
-      },
-      {
-        title: '员工姓名',
+        title: '姓名',
         dataIndex: 'empName',
         key: 'empName',
+        fixed:'left'
       },
       {
         title: '工号',
@@ -682,89 +707,12 @@ export default class extends PureComponent {
         sortOrder: sorter['sorterColumn'] === 'jobNumber' ? sorter['sorterType'] : false,
       },
       {
-        title: '钉钉用户ID',
-        dataIndex: 'dingID',
-        key: 'dingID',
-      },
-      {
-        title: '性别',
-        dataIndex: 'sex',
-        key: 'sex',
-        render: (text) => {
-          return text === 'man' ? "男" : "女";
-        },
-      },
-      {
-        title: '年龄',
-        dataIndex: 'age',
-        key: 'age',
-        render: (text, row) => {
-          const {birthday} = row;
-          return moment().diff(moment(birthday), 'year');
-        }
-      },
-      {
-        title: '出生日期',
-        dataIndex: 'birthday',
-        key: 'birthday',
-        sorter: true,
-        sortOrder: sorter['sorterColumn'] === 'birthday' ? sorter['sorterType'] : false,
-        render: (value) => {
-          return Format.Date.Format(value, 'YYYY-MM-DD');
-        }
-      },
-      {
-        title: '入职日期',
-        dataIndex: 'entryDate',
-        key: 'entryDate',
-        sorter: true,
-        render: (value) => {
-          return Format.Date.Format(value, 'YYYY-MM-DD');
-        }
-      },
-      {
-        title: '转正日期',
-        dataIndex: 'correctionDate',
-        key: 'correctionDate',
-        sorter: true,
-        render: (value) => {
-          return Format.Date.Format(value, 'YYYY-MM-DD');
-        }
-      },
-      {
-        title: '离职日期',
-        dataIndex: 'leaveDate',
-        key: 'leaveDate',
-        hide: true,
-        sorter: true,
-        render: (value) => {
-          return Format.Date.Format(value, 'YYYY-MM-DD');
-        }
-      },
-      {
-        title: '工龄(月)',
-        key: 'workMonth',
-        dataIndex: 'workMonth',
-        render: (value, row,) => {
-          const {entryDate, workStatus, leaveDate} = row;
-          if (workStatus === 'retire' || workStatus === 'quit') {
-            return moment(leaveDate).diff(moment(entryDate), 'month');
-          }
-          return moment().diff(moment(entryDate), 'month');
-        }
-      },
-      {
-        title: '所在公司',
-        dataIndex: 'companyName',
-        key: 'companyName',
-      },
-      {
         title: '部门',
         dataIndex: 'depName',
         key: 'depName',
       },
       {
-        title: '职位',
+        title: '岗位',
         dataIndex: 'positionList',
         key: 'positionList',
         render: (value) => {
@@ -777,32 +725,109 @@ export default class extends PureComponent {
         }
       },
       {
-        title: '职位等级',
-        dataIndex: 'positionLevel',
-        key: 'positionLevel',
-        render: (value) => {
-          const {columnList} = this.props;
-          if (columnList.contains('positionLevel')) {
-            return value;
-          }
-          return "****";
-        }
-      },
-      {
-        title: '基本薪资',
-        dataIndex: 'salary',
-        key: 'salary',
+        title: '入职日期',
+        dataIndex: 'entryDate',
+        key: 'entryDate',
         sorter: true,
         render: (value) => {
-          const {columnList} = this.props;
-          if (columnList.contains('salary')) {
-            return Format.Money.Rmb(value);
-          }
-          return "****";
+          return Format.Date.Format(value, 'YYYY-MM-DD');
         }
       },
+      // {
+      //   title: '钉钉用户ID',
+      //   dataIndex: 'dingID',
+      //   key: 'dingID',
+      // },
+      // {
+      //   title: '性别',
+      //   dataIndex: 'sex',
+      //   key: 'sex',
+      //   render: (text) => {
+      //     return text === 'man' ? "男" : "女";
+      //   },
+      // },
+      // {
+      //   title: '年龄',
+      //   dataIndex: 'age',
+      //   key: 'age',
+      //   render: (text, row) => {
+      //     const {birthday} = row;
+      //     return moment().diff(moment(birthday), 'year');
+      //   }
+      // },
+      // {
+      //   title: '出生日期',
+      //   dataIndex: 'birthday',
+      //   key: 'birthday',
+      //   sorter: true,
+      //   sortOrder: sorter['sorterColumn'] === 'birthday' ? sorter['sorterType'] : false,
+      //   render: (value) => {
+      //     return Format.Date.Format(value, 'YYYY-MM-DD');
+      //   }
+      // },
       {
-        title: '状态',
+        title: '转正日期',
+        dataIndex: 'correctionDate',
+        key: 'correctionDate',
+        sorter: true,
+        render: (value) => {
+          return Format.Date.Format(value, 'YYYY-MM-DD');
+        }
+      },
+      // {
+      //   title: '离职日期',
+      //   dataIndex: 'leaveDate',
+      //   key: 'leaveDate',
+      //   hide: true,
+      //   sorter: true,
+      //   render: (value) => {
+      //     return Format.Date.Format(value, 'YYYY-MM-DD');
+      //   }
+      // },
+      {
+        title: '工龄(月)',
+        key: 'workMonth',
+        dataIndex: 'workMonth',
+        render: (value, row,) => {
+          const {entryDate, workStatus, leaveDate} = row;
+          if (workStatus === 'retire' || workStatus === 'quit') {
+            return moment(leaveDate).diff(moment(entryDate), 'month');
+          }
+          return moment().diff(moment(entryDate), 'month');
+        }
+      },
+      // {
+      //   title: '所在公司',
+      //   dataIndex: 'companyName',
+      //   key: 'companyName',
+      // },
+      // {
+      //   title: '职位等级',
+      //   dataIndex: 'positionLevel',
+      //   key: 'positionLevel',
+      //   render: (value) => {
+      //     const {columnList} = this.props;
+      //     if (columnList.contains('positionLevel')) {
+      //       return value;
+      //     }
+      //     return "****";
+      //   }
+      // },
+      // {
+      //   title: '基本薪资',
+      //   dataIndex: 'salary',
+      //   key: 'salary',
+      //   sorter: true,
+      //   render: (value) => {
+      //     const {columnList} = this.props;
+      //     if (columnList.contains('salary')) {
+      //       return Format.Money.Rmb(value);
+      //     }
+      //     return "****";
+      //   }
+      // },
+      {
+        title: '工作状态',
         dataIndex: 'workStatus',
         key: 'workStatus',
         width: 80,
@@ -817,6 +842,7 @@ export default class extends PureComponent {
         key: 'op',
         className: 'align-right',
         width: 180,
+        fixed:'right',
         render: (text, record, index) => {
           const {actionList} = this.props;
           const action = [
@@ -898,42 +924,18 @@ export default class extends PureComponent {
           }
         },
       },
-      {
-        isShow: true,
-        dropdown: {
-          button: {text: '批处理功能', className: 'ant-btn-default',},
-          menuClick: key => this.mutiOperation(key),
-          menu: [
-            {
-              label: '删除',
-              key: "delete",
-              isShow: actionList.contains('delete'),
-            }
-          ]
-        },
-      }
     ];
-    const rowSelection = {
-      onChange: (selectedRowKeys, selectedRows) => {
-        model.setState({
-          selectItems: selectedRowKeys,
-        });
-      },
-      selectedRowKeys: selectItems,
-    };
     return (
       <StandardTable
-        id="oa-hr-employee-list"
+        mode='simple'
         rowKey={record => record.empID}
         actions={actions}
         columns={columns}
-        tools={["export", "setting", "refresh"]}
-        refresh={e => this.getList()}
         dataSource={list}
         page={false}
         loading={loading.effects[`${modelNameSpace}/get`]}
-        rowSelection={rowSelection}
         onChange={this.tableChange}
+        scroll={{x:1200}}
       />
     );
   }
@@ -962,19 +964,19 @@ export default class extends PureComponent {
     const fxLayoutProps = {
       header: {
         extra: this.renderSearchForm(),
-        tabs: {
-          items: [
-            {title: '全部', key: '', count: all},
-            {title: '已转正', key: 'working', count: working},
-            {title: '试用期', key: 'trial', count: trial},
-            {title: '实习期', key: 'internShip', count: internShip},
-            {title: '临时员工', key: 'temporary', count: temporary},
-            {title: '已退休', key: 'retire', count: retire},
-            {title: '已离职', key: 'quit', count: quit},
-          ],
-          activeKey: workStatus && workStatus.length > 0 ? workStatus[0] : '',
-          onTabChange: tab => utils.changeFilter({workStatus: tab === '' ? [] : [tab]}).then(_ => this.getList(1)),
-        }
+        // tabs: {
+        //   items: [
+        //     {title: '全部', key: '', count: all},
+        //     {title: '已转正', key: 'working', count: working},
+        //     {title: '试用期', key: 'trial', count: trial},
+        //     {title: '实习期', key: 'internShip', count: internShip},
+        //     {title: '临时员工', key: 'temporary', count: temporary},
+        //     {title: '已退休', key: 'retire', count: retire},
+        //     {title: '已离职', key: 'quit', count: quit},
+        //   ],
+        //   activeKey: workStatus && workStatus.length > 0 ? workStatus[0] : '',
+        //   onTabChange: tab => utils.changeFilter({workStatus: tab === '' ? [] : [tab]}).then(_ => this.getList(1)),
+        // }
       },
       body: {
         center: this.renderTable(),

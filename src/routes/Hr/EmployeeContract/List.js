@@ -22,6 +22,7 @@ import StandardDatePicker from  '../../../myComponents/Date/StandardDatePicker';
 import StandardRangePicker from  '../../../myComponents/Date/StandardRangePicker';
 import EditModal from '../../../myComponents/Fx/EditModal';
 import FxLayout from '../../../myComponents/Layout/';
+import PositionSelect from '../../../myComponents/Select/Position';
 
 const modelNameSpace = 'employee-contract';
 const TextArea = Input.TextArea;
@@ -73,9 +74,15 @@ export default class extends PureComponent {
     const {model, [modelNameSpace]: {pageIndex, pageSize}} = this.props;
     const {getFieldsValue} = this.ref.searchForm.props.form;
     const {sorter, currentStatus} = this.state;
-    let {date} = getFieldsValue();
-    const startDate = date ? date[0].format('YYYY-MM-DD') : null;
-    const endDate = date ? date[1].format('YYYY-MM-DD') : null;
+    let {entryDate,probationDate,contractStartDate,contractEndDate} = getFieldsValue();
+    const entryStartDate = entryDate ? entryDate[0].format('YYYY-MM-DD') : null;
+    const entryEndDate = entryDate ? entryDate[1].format('YYYY-MM-DD') : null;
+    const probationStartDate = probationDate ? probationDate[0].format('YYYY-MM-DD') : null;
+    const probationEndDate = probationDate ? probationDate[1].format('YYYY-MM-DD') : null;
+    const contractStartStartDate = contractStartDate ? contractStartDate[0].format('YYYY-MM-DD') : null;
+    const contractStartEndDate = contractStartDate ? contractStartDate[1].format('YYYY-MM-DD') : null;
+    const contractEndStartDate = contractEndDate ? contractEndDate[0].format('YYYY-MM-DD') : null;
+    const contractEndEndDate = contractEndDate ? contractEndDate[1].format('YYYY-MM-DD') : null;
     model.setState({
       pageIndex: page || pageIndex,
       data: {
@@ -84,8 +91,14 @@ export default class extends PureComponent {
       }
     }).then(() => {
       model.get({
-        startDate,
-        endDate,
+        entryStartDate,
+        entryEndDate,
+        probationStartDate,
+        probationEndDate,
+        contractStartStartDate,
+        contractStartEndDate,
+        contractEndStartDate,
+        contractEndEndDate,
         ...getFieldsValue(),
         status: currentStatus,
         ...sorter,
@@ -175,7 +188,7 @@ export default class extends PureComponent {
     if (moment(endDate) < moment()) {
       return <Badge status="default" text='已过期'/>
     }
-    if (moment(endDate) - moment() < 30 * 24 * 60 * 60 * 1000) {
+    if (moment(endDate) - moment() < 35 * 24 * 60 * 60 * 1000) {
       const value = (moment(endDate).diff(moment(), 'days', true));
       return (
         <Fragment>
@@ -340,66 +353,75 @@ export default class extends PureComponent {
     model.resetState();
   }
 
+
+
   renderSearchForm() {
-    const {[modelNameSpace]: {searchValues}} = this.props;
-    const {searchTypeValue} = this.state;
-    const item = [
-      [
+    const {resetFields}=this.ref.searchForm?this.ref.searchForm.props.form:{};
+    const advProps = {
+      formItem: [
         {
-          isShow: true,
-          render: () => {
-            return (
-              <Select value={searchTypeValue} onChange={this.changeSearchType}>
-                <Option value='empName'>员工姓名</Option>
-                <Option value='jobNumber'>员工工号</Option>
-                <Option value='dept'>部门,时间</Option>
-              </Select>
-            )
-          }
-        },
-        {
-          key: 'jobNumber',
-          isShow: searchTypeValue === 'jobNumber',
-          render: () => {
-            return (<Input style={{width: 250}} placeholder={`输入员工工号精确查询，多个用 "," 隔开`}/>);
-          }
-        },
-        {
+          label: '姓名',
           key: 'empName',
-          isShow: searchTypeValue === 'empName',
-          render: () => {
-            return (<Input style={{width: 250}} placeholder="输入员工姓名模糊查询"/>);
-          }
-        },
-        {
-          key: 'dateType',
-          value: 'start',
-          isShow: searchTypeValue === 'dept',
           render: () => {
             return (
-              <Select style={{width: 100}}>
-                <Option value={'start'}>生效日期</Option>
-                <Option value={'end'}>到期时间</Option>
-                <Option value={'stop'}>终止日期</Option>
-              </Select>
+              <Input placeholder="输入员工姓名模糊查询"/>
             )
           }
         },
         {
-          key: 'date',
-          isShow: searchTypeValue === 'dept',
+          label: '工号',
+          key: 'jobNumber',
           render: () => {
             return (
-              <StandardRangePicker/>
+              <Input placeholder='输入员工工号精确查询，多个用 "," 隔开'/>
             )
+          }
+        },
+        {
+          label: "部门",
+          key: 'depID',
+          render: () => {
+            return (<DepartmentSelect allowClear placeholder="选择部门查询部门及其子部门所有人员"/>);
+          }
+        },
+        {
+          label: '入职日期',
+          key: 'entryDate',
+          render: () => {
+            return (<StandardRangePicker style={{width: '100%'}} allowClear/>)
+          }
+        },
+        {
+          label: '转正日期',
+          key: 'probationDate',
+          render: () => {
+            return (<StandardRangePicker style={{width: '100%'}} allowClear/>)
+          }
+        },
+        {
+          label: '合同开始日期',
+          key: 'contractStartDate',
+          render: () => {
+            return (<StandardRangePicker style={{width: '100%'}} allowClear/>)
+          }
+        },
+        {
+          label: '合同截止日期',
+          key: 'contractEndDate',
+          render: () => {
+            return (<StandardRangePicker style={{width: '100%'}} allowClear/>)
           }
         },
       ],
-    ];
+      onSearch: e => this.getList(1),
+      reset:() => {
+        resetFields();
+        this.getList(1);
+      }
+    };
     return (
       <SearchForm
-        item={item}
-        onSearch={values => this.getList(1)}
+        advSearch={advProps}
         wrappedComponentRef={node => this.ref.searchForm = node}
       />
     )
@@ -778,7 +800,6 @@ export default class extends PureComponent {
         rowKey={record => record.recordID}
         columns={columns}
         dataSource={list}
-        actions={actions}
         page={false}
         onChange={this.tableChange}
       />
@@ -788,19 +809,30 @@ export default class extends PureComponent {
   render() {
     const {modal, remarkModal, stopModal} = this.state;
     const {currentStatus} = this.state;
-    const {[modelNameSpace]: {pageIndex, data: {list, total},}, pagination, loading} = this.props;
+    const {[modelNameSpace]: {pageIndex, data: {list, total},}, pagination, loading,actionList} = this.props;
     const actions = [
+      {
+        isShow: actionList.contains('add'),
+        button: {
+          text: '新增',
+          icon: 'plus',
+          type: 'primary',
+          onClick: () => this.toggleModal({visible: true}),
+        },
+      },
       {
         isShow: true,
         button: {
           icon: "retweet",
           type: 'primary',
+          ghost:true,
           text: '刷新',
           onClick: () => {
             this.getList();
           }
         },
       },
+
     ];
     const options = [
       {

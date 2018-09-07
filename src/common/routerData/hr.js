@@ -12,18 +12,33 @@ export const getHr = ({app, dynamicWrapper}) => {
     [`${prefix}/employee`]: {
       name: '员工管理',
       code: menuCode.employee,
-      redirect: `${prefix}/employee/home`,
+      redirect: `${prefix}/employee/list`,
     },
     [`${prefix}/employee/home`]: {
-      name: '员工管理',
+      name: '统计分析',
       selectedCode: menuCode.employee,
       component: dynamicWrapper ? dynamicWrapper(app, ['employee'], () => import('../../routes/Hr/Employee/Home')) : null,
     },
     [`${prefix}/employee/list`]: {
-      name: '员工管理',
+      name: '员工花名册',
       selectedCode: menuCode.employee,
       component: dynamicWrapper ? dynamicWrapper(app, ['employee','employee-edit','employee-detail'], () => import('../../routes/Hr/Employee/List')) : null,
     },
+    [`${prefix}/employee/relation`]: {
+      name: '员工关系管理',
+      selectedCode: menuCode.employee,
+      component: dynamicWrapper ? dynamicWrapper(app,
+        [
+          'employee-probation',
+          'employee-relation',
+          'employee-contract',
+          'employee-insurance',
+          'position_level',
+          'employee-unusual-action',
+          'employee-leave',
+        ], () => import('../../routes/Hr/EmployeeRelation/')) : null,
+    },
+
 
     [`${prefix}/employee-contract`]: {
       name: '合同管理',

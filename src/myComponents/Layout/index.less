@@ -4,9 +4,10 @@
 .fxLayout {
   height: 100%;
   position: relative;
+  background: #fff;
   .fxLayoutHeader {
     padding: 0px @fx-base-spacing;
-    border-bottom: 1px solid #e8e8e8;
+    //border-bottom: 1px solid #e8e8e8;
     background: #fff;
     position: relative;
 
@@ -68,12 +69,12 @@
   }
 
   .fxLayoutFooter {
-    border-top: 1px solid #e8e8e8;
+    //border-top: 1px solid #e8e8e8;
     zoom: 1;
-    position: absolute;
-    bottom: 1px;
+    //position: absolute;
+    //bottom: 1px;
     background: #fff;
-    padding: 8px @fx-padding-horizontal;
+    padding: 0px 24px 24px 24px;
     .clearfix();
     :global {
       .ant-pagination-options-size-changer.ant-select {
@@ -96,7 +97,6 @@
   }
 
   &.fxLayoutStageTop {
-    top: -1px;
     .fxLayoutLeft {
       height: ~"calc(100vh - 50px)";
     }
@@ -104,7 +104,7 @@
 
   .fxLayoutWrap {
     overflow: auto;
-    padding: @fx-padding-vertical @fx-padding-horizontal;
+    padding: 0px ;
     .fxLayoutWrapBody {
       &.fxLayoutWrapBodyNoPadding {
         padding: 0;
@@ -112,7 +112,7 @@
       &.fxLayoutWrapBodyHasBg {
         background-color: #fff;
       }
-      padding: @fx-padding-vertical @fx-padding-horizontal;
+      padding: 0px @fx-padding-horizontal @fx-padding-vertical @fx-padding-horizontal;
     }
     &.fxLayoutWrapOnlyCenter {
       .fxLayoutCenter {
