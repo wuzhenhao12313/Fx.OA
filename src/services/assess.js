@@ -31,6 +31,10 @@ export async function completeAssess(params) {
   return Http.AutoError.Post(`${prefix}/CompleteAssess`, params);
 }
 
+export async function backAssess(params) {
+  return Http.AutoError.Post(`${prefix}/BackAssess`, params);
+}
+
 export async function update(params) {
   return Http.AutoError.Post(`${prefix}/Update`, params);
 }
@@ -62,3 +66,14 @@ export async function getEmployeeScoreList(params) {
 export async function getRecordUserList(params) {
   return Http.AutoError.Get(`${prefix}/getRecordUserList`, params);
 }
+
+export async function getAssessRecordList(params) {
+  return Http.AutoError.Get(`${prefix}/GetAssessRecordList`, params);
+}
+
+export async function getSellExtractListByID(params) {
+  return Http.AutoError.Get(`${prefix}/GetSellExtractListByID`, params);
+}
+
+
+

@@ -208,7 +208,7 @@ export default class GlobalHeader extends PureComponent {
     );
     const noticeData = this.getNoticeData();
     return (
-      <Header style={{background: '#007454', padding: 0}} className={classNames(styles.header, {
+      <Header style={{padding: 0}} className={classNames(styles.header, {
         [styles.headerCollapsed]: collapsed,
       })}>
         <Icon

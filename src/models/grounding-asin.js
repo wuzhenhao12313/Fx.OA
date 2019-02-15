@@ -1,5 +1,5 @@
 import {createModel} from '../utils/rs/Model';
-import {getAsinList, getPAsinDetail, switchPlan, switchUnder,refreshAsinByID} from '../services/grounding';
+import {getAsinList, getPAsinDetail, switchPlan, switchUnder,refreshAsinByID,downloadAsinByID} from '../services/grounding';
 
 export default createModel({
   namespace: 'grounding-asin',
@@ -8,6 +8,8 @@ export default createModel({
       list:[],
       total:0,
       isSaleNum:0,
+      orderMoney:0,
+      orderNum:0,
     },
     detailData:{
       list:[],
@@ -49,6 +51,10 @@ export default createModel({
     },
     * refreshAsinByID({payload}, {call, put}){
       const res = yield call(refreshAsinByID, payload);
+      return Promise.resolve(res.success);
+    },
+    * downloadAsinByID({payload}, {call, put}){
+      const res = yield call(downloadAsinByID, payload);
       return Promise.resolve(res.success);
     },
   },

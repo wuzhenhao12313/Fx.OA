@@ -52,7 +52,7 @@ export default class extends React.Component {
         birthdayType, recruitmentChannel, companyID, graduationSchool, graduationDate, major,
         computerLevel, hobby, specialty, maritalStatus, emergencyContact, emergencyContactPhone,
         originPlace, homeAddress, residentialAddress, ID, bankCard, openingBank, education, userPositionList,
-        dingID,
+        dingID,salary,
       } = fieldsValue;
       const {workPhotoUrl, isAdd, foreignList} = this.state;
       const userEntity = {
@@ -88,6 +88,7 @@ export default class extends React.Component {
         recruitmentChannel,
         companyID,
         dingID,
+        salary,
       };
       const employeeExtraEntity = {
         userID,
@@ -228,7 +229,7 @@ export default class extends React.Component {
       email, entryDate, correctionDate, leaveDate, payday, positionLevel, salarySubsidy, foreignLanguages,
       birthdayType, recruitmentChannel, companyID, graduationSchool, graduationDate, major,
       computerLevel, hobby, specialty, maritalStatus, emergencyContact, emergencyContactPhone,
-      originPlace, homeAddress, residentialAddress, ID, bankCard, openingBank, education, workPhotoUrl,dingID,
+      originPlace, homeAddress, residentialAddress, ID, bankCard, openingBank, education, workPhotoUrl,dingID,salary,
     } = employee;
     const userPosition = [];
     const {isAdd} = this.state;
@@ -428,6 +429,15 @@ export default class extends React.Component {
                           return (<Option value={levelCode} key={levelCode}>{levelCode}</Option>)
                         })}
                       </Select>
+                    )}
+                  </FormItem>
+                </Col>
+                <Col span={6}>
+                  <FormItem label="薪资">
+                    {getFieldDecorator('salary', {
+                      initialValue: salary,
+                    })(
+                     <Input/>
                     )}
                   </FormItem>
                 </Col>

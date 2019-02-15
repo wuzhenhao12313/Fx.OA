@@ -1,5 +1,5 @@
 import {createModel} from '../utils/rs/Model';
-import {editAsin, getNotDownloadAsinList, switchUnder} from '../services/grounding';
+import {editAsin, getNotDownloadAsinList, switchUnder,downloadAsinByID} from '../services/grounding';
 
 export default createModel({
   namespace: 'grounding-asin-not-download',
@@ -36,6 +36,10 @@ export default createModel({
     },
     * switchUnder({payload}, {call, put}){
       const res = yield call(switchUnder, payload);
+      return Promise.resolve(res.success);
+    },
+    * downloadAsinByID({payload}, {call, put}){
+      const res = yield call(downloadAsinByID, payload);
       return Promise.resolve(res.success);
     },
   },

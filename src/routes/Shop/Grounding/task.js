@@ -17,7 +17,8 @@ import {
   Card,
   Collapse,
   Menu,
-  Dropdown
+  Dropdown,
+  Tabs,
 } from 'antd';
 import Component from '../../../utils/rs/Component';
 import FxLayout from '../../../myComponents/Layout/';
@@ -37,6 +38,7 @@ import Uri from "../../../utils/rs/Uri";
 const modelNameSpace = "grounding-task";
 const Fragment = React.Fragment;
 const ButtonGroup = Button.Group;
+const TabPane = Tabs.TabPane;
 
 const departmentData = fetchApiSync({url: '/Department/Get',});
 const departmentList = departmentData.data.toObject().list.toObject();
@@ -61,6 +63,7 @@ export default class  extends PureComponent {
       currentPlanItemID: 0,
       currentPlanID: 0,
       currentPlan: {},
+      currentShopType: null,
     },
     editModal: {
       isAdd: false,
@@ -72,6 +75,7 @@ export default class  extends PureComponent {
     addAsinVisible: false,
     currentAddAsinValue: null,
     currentAddAsinCode: null,
+
     asinModel: 'table',
     tag: null,
   };
@@ -85,7 +89,7 @@ export default class  extends PureComponent {
     const tag = Uri.Query('tag');
     this.setState({
       tag,
-    })
+    });
     this.getList(1);
   }
 
@@ -293,7 +297,8 @@ export default class  extends PureComponent {
         currentPlanItemID: planItemID,
         currentPlanID: planID,
         currentPlan,
-      }
+        currentShopType: currentPlan.shopType,
+      },
     });
     this.getAsinList(planItemID);
   }
@@ -301,7 +306,7 @@ export default class  extends PureComponent {
   addAsin = () => {
     const {model} = this.props;
     const {getFieldsValue} = this.ref.editForm.props.form;
-    const {currentPlanItemID, currentPlanID} = this.state.asinDrawerProps;
+    const {currentPlanItemID, currentPlanID,currentShopType,currentPlan} = this.state.asinDrawerProps;
     const {pAsin, asin, shopID} = getFieldsValue();
     const {currentAddAsinCode, isAdd, currentAsin} = this.state.editModal;
     if (String.IsNullOrEmpty(asin)) {
@@ -316,6 +321,7 @@ export default class  extends PureComponent {
       pAsin: pAsin.trim(),
       imgUrl: "",
       code: currentAddAsinCode,
+      shopType:currentShopType,
     } : {
       asinID: currentAsin.id,
       asin: asin.trim(),
@@ -330,6 +336,13 @@ export default class  extends PureComponent {
             visible: false,
           }
         });
+        if(isAdd){
+          currentPlan.endCount+=1;
+          this.setState({
+            ...this.state.asinDrawerProps,
+            currentPlan,
+          });
+        }
         this.getAsinList(currentPlanItemID);
       }
     });
@@ -371,7 +384,7 @@ export default class  extends PureComponent {
   }
 
   removeAsin = (asinID) => {
-    const {currentPlanItemID} = this.state.asinDrawerProps;
+    const {currentPlanItemID,currentPlan} = this.state.asinDrawerProps;
     Modal.confirm({
       title: '删除ASIN',
       content: '确定要删除ASIN吗？删除后将无法恢复',
@@ -382,6 +395,11 @@ export default class  extends PureComponent {
         }).then(success => {
           if (success) {
             this.getAsinList(currentPlanItemID);
+            currentPlan.endCount-=1;
+            this.setState({
+              ...this.state.asinDrawerProps,
+              currentPlan,
+            });
           }
         });
       }
@@ -423,6 +441,10 @@ export default class  extends PureComponent {
         this.getAsinList(currentPlanItemID);
       }
     });
+  }
+  getShopTypeAsinCount=(shopType)=>{
+    const {asinList} = this.props[modelNameSpace];
+    return asinList.filter(x=>x.shopType===shopType).length;
   }
 
   renderEditModal() {
@@ -513,9 +535,9 @@ export default class  extends PureComponent {
   }
 
   renderAsin() {
-    const {visible, currentPlanItemID, currentPlan} = this.state.asinDrawerProps;
+    const {visible, currentPlanItemID, currentPlan, currentShopType} = this.state.asinDrawerProps;
     const {asinList} = this.props[modelNameSpace];
-    const codeList = this.getCodeList(currentPlan.shopType);
+    const codeList = this.getCodeList(currentShopType);
     const gridStyle = {
       width: '33.33%',
       textAlign: 'center',
@@ -526,6 +548,7 @@ export default class  extends PureComponent {
       <Drawer
         title='ASIN列表'
         width={1100}
+        style={{width: 1100}}
         placement="right"
         closable={false}
         onClose={e => this.setState({asinDrawerProps: {visible: false}})}
@@ -538,6 +561,21 @@ export default class  extends PureComponent {
             onClick={e => this.getAsinList(currentPlanItemID)}>刷新</Button>
         </div>
         {this.renderAsinHeader()}
+        <Tabs type='card'
+              activeKey={currentShopType}
+              onChange={currentShopType => this.setState({
+                asinDrawerProps: {
+                  ...this.state.asinDrawerProps,
+                  currentShopType
+                }
+              })}
+        >
+          <TabPane key='amazon' tab={<div>amazon <Badge count={this.getShopTypeAsinCount('amazon')}/></div>}/>
+          <TabPane key='ebay' tab={<div>ebay <Badge count={this.getShopTypeAsinCount('ebay')}/></div>}/>
+          <TabPane key='cdiscount' tab={<div>cdiscount <Badge count={this.getShopTypeAsinCount('cdiscount')}/></div>}/>
+          <TabPane key='wish' tab={<div>wish <Badge count={this.getShopTypeAsinCount('wish')}/></div>}/>
+          <TabPane key='shopee' tab={<div>shopee <Badge count={this.getShopTypeAsinCount('shopee')}/></div>}/>
+        </Tabs>
         <Collapse accordion>
           {codeList.map(code => {
             return (
@@ -743,7 +781,7 @@ export default class  extends PureComponent {
   }
 
   render() {
-    const {pagination, loading,model} = this.props;
+    const {pagination, loading, model} = this.props;
     const {data: {total}, pageIndex} = this.props[modelNameSpace];
     const actions = [
       {
@@ -774,6 +812,7 @@ export default class  extends PureComponent {
       header: {
         title: `我的铺货任务----当前周期（${startDay.format('YYYY-MM-DD')} -  ${endDay.format('YYYY-MM-DD')}）`,
         actions,
+        titleStyle: {padding: '24px 0px'},
       },
       footer: {
         pagination: pagination({pageIndex, total}, this.getList),
@@ -783,9 +822,9 @@ export default class  extends PureComponent {
       },
     };
     return (
-      <div >
-        {this.state.tag==='asin'?
-         <Asin role='employee' />:<div>
+      <div>
+        {this.state.tag === 'asin' ?
+          <Asin role='employee'/> : <div>
             <FxLayout {...fxLayoutProps} />
             {this.state.asinDrawerProps.visible ? this.renderAsin() : null}
             {this.state.editModal.visible ? this.renderEditModal() : null}

@@ -315,19 +315,13 @@ export default class extends React.Component {
       {
         title: '申请编号',
         dataIndex: 'materielNo',
-        width: 250,
+
       },
-      {
-        title: '申请时间',
-        dataIndex: 'applyDate',
-        width: 200,
-        render: (text) => {
-          return formatDate(text, 'YYYY-MM-DD HH:mm')
-        }
-      },
+
       {
         title: '物料列表',
         dataIndex: 'materielData',
+        width:400,
         render: (text) => {
           const array = text ? text.toObject() : [];
           return (
@@ -346,9 +340,15 @@ export default class extends React.Component {
         }
       },
       {
+        title: '申请时间',
+        dataIndex: 'applyDate',
+        render: (text) => {
+          return formatDate(text, 'YYYY-MM-DD HH:mm')
+        }
+      },
+      {
         title: '完成时间',
         dataIndex: 'applyDate',
-        width: 200,
         render: (text) => {
           return formatDate(text, 'YYYY-MM-DD HH:mm')
         }
@@ -356,7 +356,6 @@ export default class extends React.Component {
       {
         title:'状态',
         dataIndex:'status',
-        width:120,
         render:(text)=>{
           let obj={};
           switch (text){
@@ -381,8 +380,8 @@ export default class extends React.Component {
       {
         title: '操作',
         dataIndex: 'op',
-        width: 100,
         align: 'right',
+        width:100,
         render: (text, row) => {
           if (row.status === 0) {
             return (<a onClick={e => this.cancel(row.id)}>撤销</a>)

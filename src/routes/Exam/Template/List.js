@@ -387,8 +387,11 @@ export default class extends React.Component {
         }, pagination, loading,
     } = this.props;
     const fxLayoutProps = {
-      header: {
+      pageHeader:{
         title:'试卷模板库',
+      },
+      header: {
+
         extra: this.renderSearchForm(),
       },
       body: {

@@ -23,7 +23,7 @@ import RcPrint from 'rc-print';
 import classNames from 'classnames';
 import {fetchApiSync, fetchDictSync} from '../../../utils/rs/Fetch';
 import {String} from '../../../utils/rs/Util';
-import {createTree} from '../../../utils/utils';
+import {createTree, formatNumber} from '../../../utils/utils';
 import FxLayout from '../../../myComponents/Layout/';
 import AutoSelect from '../../../myComponents/Fx/AutoSelect';
 import SearchForm from '../../../myComponents/Form/Search';
@@ -150,16 +150,16 @@ export default class extends React.Component {
   getNowAssess = () => {
     const {model} = this.props;
     model.call("getNowAssess").then(_ => {
-      const {nowAssess: {record, recordConfig,recordUser,}} = this.props[modelNameSpace];
+      const {nowAssess: {record, recordConfig, recordUser,}} = this.props[modelNameSpace];
       if (record) {
         let depList = [];
         recordConfig.forEach(x => {
           depList = depList.concat(x.depIDs.toList());
         });
-        if(recordUser){
-          const {depIDs}=recordUser;
-          let _list=depIDs?depIDs.toList():[];
-          depList=depList.filter(x=>_list.contains(x));
+        if (recordUser) {
+          const {depIDs} = recordUser;
+          let _list = depIDs ? depIDs.toList() : [];
+          depList = depList.filter(x => _list.contains(x));
         }
         this.setState({
           currentDep: depList.length > 0 ? depList[0] : '',
@@ -206,7 +206,7 @@ export default class extends React.Component {
 
   getTabItemMap = () => {
     let map = [];
-    const {nowAssess: {record, recordConfig,recordUser}} = this.props[modelNameSpace];
+    const {nowAssess: {record, recordConfig, recordUser}} = this.props[modelNameSpace];
     if (record) {
       recordConfig.forEach(x => {
         const {depIDs} = x;
@@ -218,11 +218,14 @@ export default class extends React.Component {
           });
         });
       });
+      map.sort((a, b) => {
+        return departmentList.filter(x => x.depID === a.key.toInt())[0].showIndex - departmentList.filter(x => x.depID === b.key.toInt())[0].showIndex;
+      });
     }
-    if(recordUser){
-      const {depIDs}=recordUser;
-      let _list=depIDs?depIDs.toList():[];
-      map=map.filter(x=>_list.contains(x.key));
+    if (recordUser) {
+      const {depIDs} = recordUser;
+      let _list = depIDs ? depIDs.toList() : [];
+      map = map.filter(x => _list.contains(x.key));
     }
     return map;
   }
@@ -242,6 +245,9 @@ export default class extends React.Component {
         });
       });
     }
+    map.sort((a, b) => {
+      return departmentList.filter(x => x.depID === a.key.toInt())[0].showIndex - departmentList.filter(x => x.depID === b.key.toInt())[0].showIndex;
+    });
     return map;
   }
 
@@ -309,9 +315,8 @@ export default class extends React.Component {
         const {model} = this.props;
         const {nowAssess: {record}} = this.props[modelNameSpace];
         const {id} = record;
-        model.call("completeAssess", {
+        model.call("backAssess", {
           assessID: id,
-          isEnd: 0,
         }).then(({success}) => {
           this.getNowAssess();
           this.getList();
@@ -327,9 +332,43 @@ export default class extends React.Component {
         const {model} = this.props;
         const {nowAssess: {record}} = this.props[modelNameSpace];
         const {id} = record;
+
+        const {assessDetail: {employeeList,managerList}} = this.props[modelNameSpace];
+        let userList=[];
+        employeeList.forEach(x => {
+          let dataSource = employeeList.filter(y => y.depID === x.depID);
+          let extraRate = null;
+          if (x.notInRate !== 1) {
+            let all = 0;
+            dataSource.filter(y => y.notInRate !== 1 && y.isExtension === x.isExtension).forEach(i => {
+              const _score = this.getEmployeeTotalScore(i) || 0;
+              all += _score * 1;
+            });
+            if (all === 0) {
+              extraRate = null
+            }
+            else {
+              extraRate = (this.getEmployeeTotalScore(x) / all).toFixed(2);
+            }
+            if(x.customExtractRate){
+              extraRate=customExtractRate;
+            }
+            userList.push({
+              userID: x.userID,
+              extraRate,
+            });
+          }
+        });
+        managerList.forEach(x=>{
+          userList.push({
+            userID:x.userID,
+            extraRate:this.getManagerTotalScore(x)/100,
+          });
+        });
         model.call("completeAssess", {
           assessID: id,
           isEnd: 1,
+          userExtraListStr: JSON.stringify(userList),
         }).then(({success}) => {
           this.getNowAssess();
           this.getList();
@@ -355,7 +394,7 @@ export default class extends React.Component {
   openPop = (managerID) => {
     const {model} = this.props;
     const {currentDep} = this.state;
-    const {nowAssess:{record}, assessDetail: {managerList}} = this.props[modelNameSpace];
+    const {nowAssess: {record}, assessDetail: {managerList}} = this.props[modelNameSpace];
     const {id} = record;
     model.call("getEmployeeScoreList", {
       assessID: id,
@@ -586,7 +625,7 @@ export default class extends React.Component {
   addAssessEmployee = () => {
     const {model} = this.props;
     const {nowAssess} = this.props[modelNameSpace];
-    const {record:{id}} = nowAssess;
+    const {record: {id}} = nowAssess;
     const {currentAddList} = this.state.editEmployeeModal;
     console.log(nowAssess)
     model.call("addAssessEmployee", {
@@ -603,13 +642,14 @@ export default class extends React.Component {
           }
         });
         this.setState({
-          editEmployeeModal:{
-            visible:false,
+          editEmployeeModal: {
+            visible: false,
           }
         })
       }
     })
   }
+
 
   renderModal() {
     const {modal: {visible}} = this.state;
@@ -851,7 +891,7 @@ export default class extends React.Component {
 
   renderBody() {
     const {nowAssess: {record, recordConfig}} = this.props[modelNameSpace];
-    const {actionList}=this.props;
+    const {actionList} = this.props;
     const {
       isEnd,
     } = record || {};
@@ -871,47 +911,47 @@ export default class extends React.Component {
       } = recordConfig.filter(x => x.depIDs.toList().contains(this.state.currentDep.toString()))[0] || {};
       return (
         <div>
-          {actionList.contains('btn')?
-          <Form layout='inline' style={{marginBottom: 12}}>
-            {isEnd === 0 ?
-              <FormItem>
-                <Button icon='save' type='primary' onClick={e => this.completeAssess()}>完成考核</Button>
-              </FormItem> :
-              <FormItem>
-                <Button icon='arrow-left' type='danger' onClick={e => this.backAssess()} ghost>撤回考核</Button>
-              </FormItem>
-            }
-            {isEnd === 0 ?
-              <FormItem>
-                <Button icon={this.state.editEmployee ? "unlock" : 'lock'}
-                        onClick={e => this.changeEditEmployee()}>{this.state.editEmployee ? "关闭人员编辑" : "开启人员编辑"}</Button>
-              </FormItem> : null
-            }
-            {
-              isEnd === 0 ?
+          {actionList.contains('btn') ?
+            <Form layout='inline' style={{marginBottom: 12}}>
+              {isEnd === 0 ?
                 <FormItem>
-                  <Button icon='delete' type="danger" ghost onClick={e => this.cancelAssess()}>撤销考核</Button>
+                  <Button icon='save' type='primary' onClick={e => this.completeAssess()}>完成考核</Button>
+                </FormItem> :
+                <FormItem>
+                  <Button icon='arrow-left' type='danger' onClick={e => this.backAssess()} ghost>撤回考核</Button>
                 </FormItem>
-                : null
-            }
-            {
-              isEnd === 1 ?
-                <Fragment>
+              }
+              {isEnd === 0 ?
+                <FormItem>
+                  <Button icon={this.state.editEmployee ? "unlock" : 'lock'}
+                          onClick={e => this.changeEditEmployee()}>{this.state.editEmployee ? "关闭人员编辑" : "开启人员编辑"}</Button>
+                </FormItem> : null
+              }
+              {
+                isEnd === 0 ?
                   <FormItem>
-                    <Button type="dashed" icon='printer'
-                            onClick={e => this.setState({reviewModal: {visible: true}})}>打印</Button>
+                    <Button icon='delete' type="danger" ghost onClick={e => this.cancelAssess()}>撤销考核</Button>
                   </FormItem>
-                  <FormItem>
-                    <Button type="dashed" icon='export' onClick={this.exportData}>导出</Button>
-                  </FormItem>
-                </Fragment> : null
-            }
+                  : null
+              }
+              {
+                isEnd === 1 ?
+                  <Fragment>
+                    <FormItem>
+                      <Button type="dashed" icon='printer'
+                              onClick={e => this.setState({reviewModal: {visible: true}})}>打印</Button>
+                    </FormItem>
+                    <FormItem>
+                      <Button type="dashed" icon='export' onClick={this.exportData}>导出</Button>
+                    </FormItem>
+                  </Fragment> : null
+              }
 
-            {
-              this.state.isDataChange ?
-                <FormItem style={{float: 'right', marginRight: 0}}><Tag color='red'>更改未保存</Tag></FormItem> : null
-            }
-          </Form>:null}
+              {
+                this.state.isDataChange ?
+                  <FormItem style={{float: 'right', marginRight: 0}}><Tag color='red'>更改未保存</Tag></FormItem> : null
+              }
+            </Form> : null}
           <Tabs activeKey={this.state.currentDep} type="card" onChange={tab => this.changeDep(tab)}>
             {depMap.map(dep => {
               return (
@@ -919,32 +959,8 @@ export default class extends React.Component {
               )
             })}
           </Tabs>
-          <div style={{maxWidth: 1089}}>
-            <ConsoleTitle title='部门经理考评统计' type='h3' style={{paddingTop: 0}} leftBordered={true}/>
-            <Alert
-              style={{marginBottom: 12}}
-              message={
-                <div>基础评分占比: {`${m_baseScoreRate * 100}%`}
-                  , 指标完成评分占比：{`${m_targetScoreRate * 100}%`}
-                  , 运营总监考评占比：{`${m_cooScoreRate * 100}%`}
-                  , 总经理考评占比：{`${m_gmScoreRate * 100}%`}
-                  , 组员评分占比：{`${m_memberScoreRate * 100}%`}
-                </div>
-              }
-            />
+          <div style={{maxWidth: 1199}}>
             {this.renderManagerTable()}
-            <ConsoleTitle title='部门人员考评统计' type='h3' leftBordered={true}/>
-            <Alert
-              style={{marginBottom: 12}}
-              message={
-                <div>综合素质评分占比: {`${e_allRoundScoreRate * 100}%`}
-                  , 指标完成评分占比：{`${e_targetScoreRate * 100}%`}
-                  , 运营总监考评占比：{`${e_cooScoreRate * 100}%`}
-                  , 部门经理考评占比：{`${e_gmScoreRate * 100}%`}
-                  , 工作考评占比：{`${e_workingScoreRate * 100}%`}
-                </div>
-              }
-            />
             {this.renderEmployeeTable()}
           </div>
         </div>
@@ -973,15 +989,23 @@ export default class extends React.Component {
 
   renderManagerTable = () => {
     const {assessDetail: {managerList}} = this.props[modelNameSpace];
-    const {nowAssess: {record,recordUser}} = this.props[modelNameSpace];
+    const {nowAssess: {record, recordUser, recordConfig}} = this.props[modelNameSpace];
     const {isEnd} = record || {};
+    const {
+      m_baseScoreRate,
+      m_targetScoreRate,
+      m_cooScoreRate,
+      m_gmScoreRate,
+      m_memberScoreRate,
+      type
+    } = recordConfig.filter(x => x.depIDs.toList().contains(this.state.currentDep.toString()))[0] || {};
     const columns = [
       {
         dataIndex: 'notInRate',
         width: 55,
         align: 'center',
         render: (text, row) => {
-          if(recordUser){
+          if (recordUser) {
             return null
           }
           if (text === 1) {
@@ -1001,116 +1025,177 @@ export default class extends React.Component {
         }
       },
       {
-        title: '人员姓名',
+        title: '部门经理',
         dataIndex: 'userName',
         className: 'ant-th-disabled',
-        width: 100,
+        width: 150,
+      },
+      {
+        title: '项目',
+        children: [
+          {
+            title: '说明',
+            children: [
+              {
+                title: '占比',
+                className: 'ant-th-disabled',
+                width: 60,
+                align: 'center',
+                render: () => {
+                  return "打分";
+                }
+              }
+            ]
+          },
+        ]
       },
       {
         title: '基础评分',
-        dataIndex: 'baseScore',
         align: 'center',
-        className: 'ant-th-disabled',
-        width: 140,
+        children: [
+          {
+            title: '该项为固定分',
+            align: 'center',
+            children: [
+              {
+                title: `${m_baseScoreRate * 100}%`,
+                align: 'center',
+                dataIndex: 'baseScore',
+                className: 'ant-th-disabled',
+                width: 140,
+              }
+            ]
+          }
+        ]
       },
       {
         title: '指标完成',
-        dataIndex: 'targetScore',
-        align: 'center',
-        className: recordUser&&recordUser.m_targetScore.toList()[1]==='0'?'ant-th-disabled':null,
-        width: 140,
-        render: (text, row) => {
-          if(recordUser&&recordUser.m_targetScore.toList()[1]==='0'){
-            return text;
-          }
-          if (isEnd === 0) {
-            return (
-              <div
-                className={classNames({
-                  ['ant-td-edit']: true,
-                  ['ant-td-edit-active']: this.state.currentFocusItem.id === row.id && this.state.currentFocusItem.key === 'targetScore',
-                })}
-                style={{width: 139}}
-              >
-                <Input
-                  className='ant-table-input'
-                  value={text}
-                  style={{width: '100%', textAlign: 'center',}}
-                  onBlur={e => {
-                    this.changeDataStatus();
-                  }}
-                  onFocus={e => this.focusItem(row.id, "targetScore")}
-                  onChange={e => this.changeEditData({key: 'targetScore', value: e.target.value, id: row.id}, "m")}
-                />
-              </div>)
+        children: [
+          {
+            title: '部门指标完成率',
+            align: 'center',
+            children: [
+              {
+                title: `${m_targetScoreRate * 100}%`,
+                align: 'center',
+                dataIndex: 'targetScore',
+                className: recordUser && recordUser.m_targetScore.toList()[1] === '0' ? 'ant-th-disabled' : null,
+                width: 140,
+                render: (text, row) => {
+                  if (recordUser && recordUser.m_targetScore.toList()[1] === '0') {
+                    return text;
+                  }
+                  if (isEnd === 0) {
+                    return (
+                      <div
+                        className={classNames({
+                          ['ant-td-edit']: true,
+                          ['ant-td-edit-active']: this.state.currentFocusItem.id === row.id && this.state.currentFocusItem.key === 'targetScore',
+                        })}
+                        style={{width: 139}}
+                      >
+                        <Input
+                          className='ant-table-input'
+                          value={text}
+                          style={{width: '100%', textAlign: 'center',}}
+                          onBlur={e => {
+                            this.changeDataStatus();
+                          }}
+                          onFocus={e => this.focusItem(row.id, "targetScore")}
+                          onChange={e => this.changeEditData({
+                            key: 'targetScore',
+                            value: e.target.value,
+                            id: row.id
+                          }, "m")}
+                        />
+                      </div>)
 
+                  }
+                  return text;
+                }
+              }
+            ],
           }
-          return text;
-        }
+        ],
       },
       {
-        title: '运营总监考评',
-        dataIndex: 'cooScore',
-        align: 'center',
-        width: 140,
-        className: recordUser&&recordUser.m_cooScore.toList()[1]==='0'?'ant-th-disabled':null,
-        render: (text, row) => {
-          if(recordUser&&recordUser.m_cooScore.toList()[1]==='0'){
-            return text;
+        title: '总监考评',
+        children: [
+          {
+            title: '工作态度',
+            children: [
+              {
+                title: `${m_cooScoreRate * 100}%`,
+                dataIndex: 'cooScore',
+                align: 'center',
+                width: 140,
+                className: recordUser && recordUser.m_cooScore.toList()[1] === '0' ? 'ant-th-disabled' : null,
+                render: (text, row) => {
+                  if (recordUser && recordUser.m_cooScore.toList()[1] === '0') {
+                    return text;
+                  }
+                  if (isEnd === 0) {
+                    return (
+                      <div
+                        className={classNames({
+                          ['ant-td-edit']: true,
+                          ['ant-td-edit-active']: this.state.currentFocusItem.id === row.id && this.state.currentFocusItem.key === 'cooScore',
+                        })}
+                        style={{width: 139}}
+                      >
+                        <Input
+                          className='ant-table-input'
+                          value={text}
+                          style={{width: '100%', textAlign: 'center',}}
+                          onBlur={e => this.changeDataStatus()}
+                          onFocus={e => this.focusItem(row.id, "cooScore")}
+                          onChange={e => this.changeEditData({key: 'cooScore', value: e.target.value, id: row.id}, "m")}
+                        />
+                      </div>)
+                  }
+                  return text;
+                }
+              }
+            ]
+          },
+          {
+            title: '日常考核',
+            children: [
+              {
+                title: `${m_gmScoreRate * 100}%`,
+                dataIndex: 'gmScore',
+                align: 'center',
+                width: 140,
+                className: recordUser && recordUser.m_gmScore.toList()[1] === '0' ? 'ant-th-disabled' : null,
+                render: (text, row) => {
+                  if (recordUser && recordUser.m_gmScore.toList()[1] === '0') {
+                    return text;
+                  }
+                  if (isEnd === 0) {
+                    return (
+                      <div
+                        className={classNames({
+                          ['ant-td-edit']: true,
+                          ['ant-td-edit-active']: this.state.currentFocusItem.id === row.id && this.state.currentFocusItem.key === 'gmScore',
+                        })}
+                        style={{width: 139}}
+                      >
+                        <Input
+                          className='ant-table-input'
+                          value={text}
+                          style={{width: '100%', textAlign: 'center',}}
+                          onBlur={e => this.changeDataStatus()}
+                          onFocus={e => this.focusItem(row.id, "gmScore")}
+                          onChange={e => this.changeEditData({key: 'gmScore', value: e.target.value, id: row.id}, "m")}
+                        />
+                      </div>)
+                  }
+                  return text;
+                }
+              }
+            ]
           }
-          if (isEnd === 0) {
-            return (
-              <div
-                className={classNames({
-                  ['ant-td-edit']: true,
-                  ['ant-td-edit-active']: this.state.currentFocusItem.id === row.id && this.state.currentFocusItem.key === 'cooScore',
-                })}
-                style={{width: 139}}
-              >
-                <Input
-                  className='ant-table-input'
-                  value={text}
-                  style={{width: '100%', textAlign: 'center',}}
-                  onBlur={e => this.changeDataStatus()}
-                  onFocus={e => this.focusItem(row.id, "cooScore")}
-                  onChange={e => this.changeEditData({key: 'cooScore', value: e.target.value, id: row.id}, "m")}
-                />
-              </div>)
-          }
-          return text;
-        }
-      },
-      {
-        title: '总经理考评',
-        dataIndex: 'gmScore',
-        align: 'center',
-        width: 140,
-        className: recordUser&&recordUser.m_gmScore.toList()[1]==='0'?'ant-th-disabled':null,
-        render: (text, row) => {
-          if(recordUser&&recordUser.m_gmScore.toList()[1]==='0'){
-            return text;
-          }
-          if (isEnd === 0) {
-            return (
-              <div
-                className={classNames({
-                  ['ant-td-edit']: true,
-                  ['ant-td-edit-active']: this.state.currentFocusItem.id === row.id && this.state.currentFocusItem.key === 'gmScore',
-                })}
-                style={{width: 139}}
-              >
-                <Input
-                  className='ant-table-input'
-                  value={text}
-                  style={{width: '100%', textAlign: 'center',}}
-                  onBlur={e => this.changeDataStatus()}
-                  onFocus={e => this.focusItem(row.id, "gmScore")}
-                  onChange={e => this.changeEditData({key: 'gmScore', value: e.target.value, id: row.id}, "m")}
-                />
-              </div>)
-          }
-          return text;
-        }
+        ]
       },
       {
         title: <div>
@@ -1125,57 +1210,84 @@ export default class extends React.Component {
           >
             <Icon type="question-circle-o" onClick={e => this.openPop()}/>
           </Popover></div>,
-        dataIndex: 'employeeScore',
-        align: 'center',
-        width: 140,
-        className: recordUser&&recordUser.m_memberScore.toList()[1]==='0'?'ant-th-disabled':null,
-        render: (text, row) => {
-          if(recordUser&&recordUser.m_memberScore.toList()[1]==='0'){
-            return text;
+        children: [
+          {
+            title: '按平均分计算',
+            children: [
+              {
+                title: `${m_memberScoreRate * 100}%`,
+                dataIndex: 'employeeScore',
+                align: 'center',
+                width: 140,
+                className: recordUser && recordUser.m_memberScore.toList()[1] === '0' ? 'ant-th-disabled' : null,
+                render: (text, row) => {
+                  if (recordUser && recordUser.m_memberScore.toList()[1] === '0') {
+                    return text;
+                  }
+                  if (isEnd === 0) {
+                    return (
+                      <div
+                        className={classNames({
+                          ['ant-td-edit']: true,
+                          ['ant-td-edit-active']: this.state.currentFocusItem.id === row.id && this.state.currentFocusItem.key === 'employeeScore',
+                        })}
+                        style={{width: 139}}
+                      >
+                        <Input
+                          className='ant-table-input'
+                          value={text}
+                          style={{width: '100%', textAlign: 'center',}}
+                          onBlur={e => {
+                            this.changeDataStatus();
+                            this.updateMember(row.id, text);
+                          }}
+                          onFocus={e => this.focusItem(row.id, "employeeScore")}
+                          onChange={e => this.changeEditData({
+                            key: 'employeeScore',
+                            value: e.target.value,
+                            id: row.id
+                          }, "m")}
+                        />
+                      </div>)
+                  }
+                  return text;
+                }
+              }
+            ],
           }
-          if (isEnd === 0) {
-            return (
-              <div
-                className={classNames({
-                  ['ant-td-edit']: true,
-                  ['ant-td-edit-active']: this.state.currentFocusItem.id === row.id && this.state.currentFocusItem.key === 'employeeScore',
-                })}
-                style={{width: 139}}
-              >
-                <Input
-                  className='ant-table-input'
-                  value={text}
-                  style={{width: '100%', textAlign: 'center',}}
-                  onBlur={e => {
-                    this.changeDataStatus();
-                    this.updateMember(row.id, text);
-                  }}
-                  onFocus={e => this.focusItem(row.id, "employeeScore")}
-                  onChange={e => this.changeEditData({key: 'employeeScore', value: e.target.value, id: row.id}, "m")}
-                />
-              </div>)
-          }
-          return text;
-        }
-      },
-      {
-        title: '综合评分',
-        dataIndex: 'totalScore',
-        align: 'center',
-        className: 'ant-th-disabled',
-        width: 233,
-        render: (text, row) => {
-          if (text) {
-            return text;
-          }
-          return this.getManagerTotalScore(row);
-        }
+        ],
+
       },
     ];
+    if (type !== 2) {
+      columns.push({
+        title: '职级工龄占比得分',
+        dataIndex: 'extraRate',
+        align: 'center',
+        className: 'ant-th-disabled',
+        width: 80,
+        render: (text) => {
+          return `${formatNumber(text * 100, 2)}%`;
+        }
+      })
+    }
+    columns.push({
+      title: '综合评分',
+      dataIndex: 'totalScore',
+      align: 'center',
+      className: 'ant-th-disabled',
+      width: type !== 2 ? 153 : 233,
+      render: (text, row) => {
+        if (text) {
+          return text;
+        }
+        return this.getManagerTotalScore(row);
+      }
+    },)
     const dataSource = managerList.filter(x => x.depID === this.state.currentDep.toInt());
     return (
       <StandardTable
-        style={{maxWidth: 1089}}
+        style={{maxWidth: 1199}}
         bordered={true}
         rowKey={record => record.id}
         mode='simple'
@@ -1192,6 +1304,7 @@ export default class extends React.Component {
       {
         title: '组员姓名',
         dataIndex: 'userName',
+
       }, {
         title: '组员打分',
         dataIndex: 'score',
@@ -1216,23 +1329,31 @@ export default class extends React.Component {
         columns={columns}
         dataSource={currentEmployeeList}
         loading={false}
-        emptyProps={{size:'small'}}
+        emptyProps={{size: 'small'}}
       />
     )
   }
 
   renderEmployeeTable = () => {
-    const {nowAssess: {record,recordUser}} = this.props[modelNameSpace];
+    const {nowAssess: {record, recordUser, recordConfig}} = this.props[modelNameSpace];
     const {isEnd} = record || {};
     const {assessDetail: {employeeList}} = this.props[modelNameSpace];
     const dataSource = employeeList.filter(x => x.depID === this.state.currentDep.toInt());
-    const columns = [
+    const {
+      e_allRoundScoreRate,
+      e_targetScoreRate,
+      e_cooScoreRate,
+      e_gmScoreRate,
+      e_workingScoreRate,
+      type,
+    } = recordConfig.filter(x => x.depIDs.toList().contains(this.state.currentDep.toString()))[0] || {};
+    let columns = [
       {
         dataIndex: 'notInRate',
         width: 55,
         align: 'center',
         render: (text, row) => {
-          if(recordUser){
+          if (recordUser) {
             return null;
           }
           if (this.state.editEmployee) {
@@ -1255,161 +1376,205 @@ export default class extends React.Component {
         }
       },
       {
-        title: '人员姓名',
+        title: '部门组员',
         dataIndex: 'userName',
-        width: 100,
+        width: 150,
         className: 'ant-th-disabled',
-
-      },
-      {
-        title: '综合素质',
-        dataIndex: 'allRoundScore',
-        align: 'center',
-        className: 'ant-th-disabled',
-        width: 120,
-      },
-      {
-        title: '指标完成',
-        dataIndex: 'targetScore',
-        align: 'center',
-        className: recordUser&&recordUser.e_targetScore.toList()[1]==='0'?'ant-th-disabled':null,
-        width: 120,
         render: (text, row) => {
-          if(recordUser&&recordUser.e_targetScore.toList()[1]==='0'){
-            return text;
-          }
-          if (isEnd === 0) {
-            return (
-              <div
-                className={classNames({
-                  ['ant-td-edit']: true,
-                  ['ant-td-edit-active']: this.state.currentFocusItem.id === row.id && this.state.currentFocusItem.key === 'targetScore',
-                })}
-                style={{width: 119}}
-              >
-                <Input
-                  className='ant-table-input'
-                  value={text}
-                  style={{width: '100%', textAlign: 'center',}}
-                  onBlur={e => this.changeDataStatus(e)}
-                  onFocus={e => this.focusItem(row.id, "targetScore")}
-                  onChange={e => this.changeEditData({key: 'targetScore', value: e.target.value, id: row.id}, "e")}
-                />
-              </div>)
+          if (row.isExtension === 1) {
+            return <div>{text}<Tag style={{marginLeft: 5}} color="#2db7f5">推广</Tag></div>
           }
           return text;
         }
       },
       {
-        title: '运营总监考评',
-        dataIndex: 'cooScore',
-        align: 'center',
-        width: 120,
-        render: (text, row) => {
-          if (isEnd === 0) {
-            return (
-              <div
-                className={classNames({
-                  ['ant-td-edit']: true,
-                  ['ant-td-edit-active']: this.state.currentFocusItem.id === row.id && this.state.currentFocusItem.key === 'cooScore',
-                })}
-                style={{width: 119}}
-              >
-                <Input
-                  className='ant-table-input'
-                  value={text}
-                  style={{width: '100%', textAlign: 'center',}}
-                  onBlur={e => this.changeDataStatus()}
-                  onFocus={e => this.focusItem(row.id, "cooScore")}
-                  onChange={e => this.changeEditData({key: 'cooScore', value: e.target.value, id: row.id}, "e")}
-                />
-              </div>)
-          }
-          return text;
-        }
+        title: '项目',
+        children: [
+          {
+            title: '说明',
+            children: [
+              {
+                title: '占比',
+                className: 'ant-th-disabled',
+                width: 60,
+                align: 'center',
+                render: () => {
+                  return "打分";
+                }
+              }
+            ]
+          },
+        ]
       },
       {
-        title: '部门经理考评',
-        dataIndex: 'gmScore',
-        align: 'center',
-        className: 'ant-th-disabled',
-        width: 120,
-      },
-      {
-        title: '工作考评',
-        dataIndex: 'workingScore',
-        align: 'center',
-        className: 'ant-th-disabled',
-        width: 120,
-      },
-      {
-        title: '综合评分',
-        dataIndex: 'totalScore',
-        align: 'center',
-        className: 'ant-th-disabled',
-        width: 120,
-        render: (text, row) => {
-          return this.getEmployeeTotalScore(row);
-        }
-      },
-      {
-        title: '提成系数',
-        dataIndex: 'extractRate',
-        align: 'center',
-        className: 'ant-th-disabled',
-        width: 107,
-        render: (text, row) => {
-
-          if (row.notInRate === 1) {
-            return null;
+        title: type === 1 ? "指标完成率" : '工龄系数',
+        children: [
+          {
+            title: type === 1 ? '店铺指标完成率' : '转正后每月20分',
+            children: [
+              {
+                title: `${e_allRoundScoreRate * 100}%`,
+                dataIndex: 'allRoundScore',
+                align: 'center',
+                className: 'ant-th-disabled',
+                width: 120,
+              }
+            ]
           }
-          text = text || 0;
-          let all = 0;
-          dataSource.filter(x => x.notInRate !== 1).forEach(i => {
-            const _score = this.getEmployeeTotalScore(i) || 0;
-            all += _score * 1;
-          });
-          if (all === 0) {
-            return null;
-          }
-          return `${((this.getEmployeeTotalScore(row) / all) * 100).toFixed(2)}%`;
-        }
+        ],
       },
-      {
-        title: '系数修正(%)',
-        dataIndex: 'customExtractRate',
-        align: 'center',
-        className: recordUser?'ant-th-disabled':null,
-        width: 107,
-        render: (text, row) => {
-          if(recordUser){
-            return text ? `${text}%` : null;
-          }
-          if (isEnd === 1) {
-            return text ? `${text}%` : null;
-          }
-          return (
-            <div
-              className={classNames({
-                ['ant-td-edit']: true,
-                ['ant-td-edit-active']: this.state.currentFocusItem.id === row.id && this.state.currentFocusItem.key === 'customExtractRate',
-              })}
-              style={{width: 106}}
-            >
-              <Input
-                className='ant-table-input'
-                value={text}
-                style={{width: '100%', textAlign: 'center',}}
-                onBlur={e => this.changeDataStatus(text)}
-                onFocus={e => this.focusItem(row.id, "customExtractRate")}
-                onChange={e => this.changeEditData({key: 'customExtractRate', value: e.target.value, id: row.id}, "e")}
-              />
-            </div>
-          )
-        }
-      },
-
     ];
+    if (type === 2) {
+      columns.push({
+        title: '综合素质',
+        children: [
+          {
+            title: '工作经验&能力',
+            children: [
+              {
+                title: `${e_targetScoreRate * 100}%`,
+                dataIndex: 'targetScore',
+                align: 'center',
+                className: 'ant-th-disabled',
+                width: 120,
+              }
+            ]
+          }
+        ]
+      })
+    }
+
+    const gmArr = [
+      {
+        title: type === 2 ? '绩效目标得分' : '执行力',
+        children: [
+          {
+            title: `${e_cooScoreRate * 100}%`,
+            dataIndex: 'cooScore',
+            align: 'center',
+            className: 'ant-th-disabled',
+            width: 120,
+          }
+        ]
+      },
+      {
+        title: type === 2 ? '工作质量&效率' : '工作效率',
+        children: [
+          {
+            title: `${e_gmScoreRate * 100}%`,
+            dataIndex: 'gmScore',
+            align: 'center',
+            className: 'ant-th-disabled',
+            width: 120,
+          }
+        ]
+      },
+      {
+        title: type === 2 ? '工作态度' : '工作质量',
+        children: [
+          {
+            title: `${e_workingScoreRate * 100}%`,
+            dataIndex: 'workingScore',
+            align: 'center',
+            className: 'ant-th-disabled',
+            width: 120,
+          }
+        ]
+      }
+    ];
+    if (type !== 2) {
+      gmArr.unshift({
+        title: '工作态度',
+        children: [
+          {
+            title: `${e_targetScoreRate * 100}%`,
+            dataIndex: 'targetScore',
+            align: 'center',
+            className: 'ant-th-disabled',
+            width: 120,
+          }
+        ]
+      })
+    }
+    ;
+
+    columns = columns.concat(
+      [
+        {
+          title: '经理考评',
+          children: gmArr,
+        },
+        {
+          title: '综合评分',
+          dataIndex: 'totalScore',
+          align: 'center',
+          className: 'ant-th-disabled',
+          width: 120,
+          render: (text, row) => {
+            return this.getEmployeeTotalScore(row);
+          }
+        },
+        {
+          title: '提成系数',
+          dataIndex: 'extractRate',
+          align: 'center',
+          className: 'ant-th-disabled',
+          width: 107,
+          render: (text, row) => {
+            if (row.notInRate === 1) {
+              return null;
+            }
+            text = text || 0;
+            let all = 0;
+            dataSource.filter(x => x.notInRate !== 1 && x.isExtension === row.isExtension).forEach(i => {
+              const _score = this.getEmployeeTotalScore(i) || 0;
+              all += _score * 1;
+            });
+            if (all === 0) {
+              return null;
+            }
+            return `${((this.getEmployeeTotalScore(row) / all) * 100).toFixed(2)}%`;
+          }
+        },
+        {
+          title: '系数修正(%)',
+          dataIndex: 'customExtractRate',
+          align: 'center',
+          className: recordUser ? 'ant-th-disabled' : null,
+          width: 107,
+          render: (text, row) => {
+            if (recordUser) {
+              return text ? `${text}%` : null;
+            }
+            if (isEnd === 1) {
+              return text ? `${text}%` : null;
+            }
+            return (
+              <div
+                className={classNames({
+                  ['ant-td-edit']: true,
+                  ['ant-td-edit-active']: this.state.currentFocusItem.id === row.id && this.state.currentFocusItem.key === 'customExtractRate',
+                })}
+                style={{width: 106}}
+              >
+                <Input
+                  className='ant-table-input'
+                  value={text}
+                  style={{width: '100%', textAlign: 'center',}}
+                  onBlur={e => this.changeDataStatus(text)}
+                  onFocus={e => this.focusItem(row.id, "customExtractRate")}
+                  onChange={e => this.changeEditData({
+                    key: 'customExtractRate',
+                    value: e.target.value,
+                    id: row.id
+                  }, "e")}
+                />
+              </div>
+            )
+          }
+        },
+      ]
+    )
     return (
       <div>
         <StandardTable
@@ -1417,7 +1582,7 @@ export default class extends React.Component {
           rowKey={record => record.id}
           mode='simple'
           columns={columns}
-          style={{maxWidth: 1089}}
+          style={{maxWidth: 1199, marginTop: -16}}
           dataSource={dataSource}
           loading={false}
         />

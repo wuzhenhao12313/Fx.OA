@@ -86,7 +86,7 @@ export default class extends PureComponent {
       visible: false,
       currentPAsin: {},
       showNoSale: false,
-      hideHistoryAsin:true,
+      hideHistoryAsin: false,
     },
     isSale: '1',
     activeKey: 'download',
@@ -114,7 +114,7 @@ export default class extends PureComponent {
     const {pageIndex, pageSize, data: {total}} = this.props[modelNameSpace];
     const {getFieldsValue} = this.ref.searchForm.props.form;
     let {isSale, sorterColumn, sorterType} = this.state;
-    isSale=isSale==='isUnder'?null:isSale==="1";
+    isSale = isSale === 'isUnder' ? null : isSale === "1";
     const {date, firstSaleDate} = getFieldsValue();
     const startDate = date ? date[0].format('YYYY-MM-DD') : null;
     const endDate = date ? date[1].format('YYYY-MM-DD') : null;
@@ -136,7 +136,7 @@ export default class extends PureComponent {
         firstSaleEndDate,
         role,
         isSale,
-        isUnder:isSale===null,
+        isUnder: isSale === null,
         ...getFieldsValue(),
         shopType: 'amazon',
         sorterColumn,
@@ -147,7 +147,7 @@ export default class extends PureComponent {
 
   getDetailList = (page) => {
     const {model} = this.props;
-    const {currentPAsin: {P_ASIN}, showNoSale,hideHistoryAsin} = this.state.detailDrawerProps;
+    const {currentPAsin: {P_ASIN}, showNoSale, hideHistoryAsin} = this.state.detailDrawerProps;
     const {detailPageIndex, pageSize, detailData: {total}} = this.props[modelNameSpace];
     model.setState({
       detailPageIndex: page || detailPageIndex,
@@ -173,7 +173,7 @@ export default class extends PureComponent {
         visible: true,
         currentPAsin: pAsin,
         showNoSale: false,
-        hideHistoryAsin:true,
+        hideHistoryAsin: false,
       }
     }, e => this.getDetailList(1))
   }
@@ -455,46 +455,61 @@ export default class extends PureComponent {
     })
   }
 
-  refreshAsinByID=(asinID)=>{
-    const {model}=this.props;
+  refreshAsinByID = (asinID) => {
+    const {model} = this.props;
     LoadingService.Start("正在刷新数据，请稍后...");
-    model.call("refreshAsinByID",{asinID,})
-         .then(success=>{
-            LoadingService.Done();
-          });
+    model.call("refreshAsinByID", {asinID,})
+      .then(success => {
+        if(success){
+          this.getList();
+        }
+        LoadingService.Done();
+      });
   }
 
   renderTableHeader() {
-    const {data: {isSaleNum = 0, all = 0}} = this.props[modelNameSpace];
+    const {data: {isSaleNum = 0, all = 0,orderMoney=0,orderNum=0}} = this.props[modelNameSpace];
     var isSaleRate = formatNumber(isSaleNum / (all) * 100, 2);
     return (
       <Card style={{marginBottom: 24, marginTop: 8}}>
         <Row>
-          <Col span={6}>
+          <Col span={4}>
             <div className='headerInfo'>
               <span>已出单数量</span>
               <p style={{color: Color.Success}}>{isSaleNum}</p>
               <em/>
             </div>
           </Col>
-          <Col span={6}>
+          <Col span={4}>
             <div className='headerInfo'>
               <span>未出单数量</span>
               <p style={{color: Color.Error}}>{all - isSaleNum}</p>
               <em/>
             </div>
           </Col>
-          <Col span={6}>
+          <Col span={4}>
             <div className='headerInfo'>
               <span>总ASIN数量</span>
               <p>{all}</p>
               <em/>
             </div>
           </Col>
-          <Col span={6}>
+          <Col span={4}>
             <div className='headerInfo'>
               <span>出单率</span>
               <p style={{color: Color.Processing}}>{`${isSaleRate}%`}</p>
+            </div>
+          </Col>
+          <Col span={4}>
+            <div className='headerInfo'>
+              <span>总订单数量</span>
+              <p style={{color: Color.Warning}}>{orderNum||0}</p>
+            </div>
+          </Col>
+          <Col span={4}>
+            <div className='headerInfo'>
+              <span>总订单金额</span>
+              <p style={{color: Color.Warning}}>{Format.Money.Dollar(orderMoney)}</p>
             </div>
           </Col>
         </Row>
@@ -518,7 +533,7 @@ export default class extends PureComponent {
       {
         title: 'ASIN',
         dataIndex: 'P_ASIN',
-        width:100,
+        width: 120,
         render: (text, row) => {
           const codeList = this.getCodeList(row.shopType);
           const obj = codeList.filter(x => x.code === row.code)[0];
@@ -528,7 +543,7 @@ export default class extends PureComponent {
       {
         title: '商品名称',
         dataIndex: 'name',
-        width:240,
+        width: 240,
         render: (text) => {
           return (
             <div>{text}</div>
@@ -538,14 +553,14 @@ export default class extends PureComponent {
       {
         title: '商品类别',
         dataIndex: 'category',
-        width:180,
+        width: 180,
         render: (text) => {
           if (text) {
             return (
-              <ul >
+              <ul>
                 {text.toList('%').map(x => {
-                  x=x.replace('&amp;amp; ','& ');
-                  return (<li style={{listStyle:'disc'}}>{x}</li>)
+                  x = x.replace('&amp;amp; ', '& ');
+                  return (<li style={{listStyle: 'disc'}}>{x}</li>)
                 })}
               </ul>
             )
@@ -556,7 +571,7 @@ export default class extends PureComponent {
       {
         title: '部门',
         dataIndex: 'depID',
-        width:100,
+        width: 100,
         render: (text) => {
           return formatter.department[text];
         }
@@ -564,7 +579,7 @@ export default class extends PureComponent {
       {
         title: '店铺',
         dataIndex: 'shopID',
-        width:200,
+        width: 200,
         render: (text) => {
           return formatter.shop[text];
         }
@@ -572,12 +587,12 @@ export default class extends PureComponent {
       {
         title: '平台',
         dataIndex: 'shopType',
-        width:60,
+        width: 100,
       },
       {
         title: '站点',
         dataIndex: 'code',
-        width:160,
+        width: 160,
         render: (text, row) => {
           const codeList = this.getCodeList(row.shopType);
           const obj = codeList.filter(x => x.code === row.code)[0];
@@ -587,12 +602,12 @@ export default class extends PureComponent {
       {
         title: '上架人员',
         dataIndex: 'createUserName',
-        width:60,
+        width: 100,
       },
       {
         title: '上架时间',
         dataIndex: 'createDate',
-        width:150,
+        width: 150,
         render: (text) => {
           return formatDate(text, 'YYYY-MM-DD HH:MM')
         }
@@ -600,30 +615,43 @@ export default class extends PureComponent {
       {
         title: '首单时间',
         dataIndex: 'firstSaleDate',
-        width:150,
+        width: 150,
         render: (text) => {
           return formatDate(text, 'YYYY-MM-DD HH:MM')
         }
       },
       {
-        title: '状态',
-        dataIndex: 'isSale',
-        width:100,
-        render: (text, row) => {
-          return (
-            <div>
-              <p><Badge status={text === 1 ? 'success' : 'default'} text={text === 1 ? '已出单' : '未出单'}/></p>
-              <p>{row.isUnder === 1 ? <Badge status='error' text='已下架'/> : null}</p>
-            </div>
-          )
+        title:'总订单数量',
+        dataIndex:'orderNum',
+        width:120,
+      },
+      {
+        title:'订单总实收',
+        dataIndex:'orderMoney',
+        width:120,
+        render:(text)=>{
+          return Format.Money.Dollar(text);
         }
       },
+      // {
+      //   title: '状态',
+      //   dataIndex: 'isSale',
+      //   width: 100,
+      //   render: (text, row) => {
+      //     return (
+      //       <div>
+      //         <p><Badge status={text === 1 ? 'success' : 'default'} text={text === 1 ? '已出单' : '未出单'}/></p>
+      //         <p>{row.isUnder === 1 ? <Badge status='error' text='已下架'/> : null}</p>
+      //       </div>
+      //     )
+      //   }
+      // },
       {
         title: '操作',
         dataIndex: 'op',
         align: 'right',
         fixed: 'right',
-        width:150,
+        width: 150,
         render: (text, row, index) => {
           const action = [
             {
@@ -639,7 +667,11 @@ export default class extends PureComponent {
               submit: () => {
                 this.switchUnder(row.id);
               }
-            }
+            },
+            {
+              label: '刷新',
+              submit: () => this.refreshAsinByID(row.id),
+            },
           ];
           return (<TableActionBar action={action} more={more}/>);
         }
@@ -661,6 +693,8 @@ export default class extends PureComponent {
                       onChange={sorterColumn => this.setState({sorterColumn}, e => this.getList(1))}>
                 <Option value='firstSaleDate'>首单时间</Option>
                 <Option value='createDate'>上架时间</Option>
+                <Option value='orderNum'>总订单数量</Option>
+                <Option value='orderMoney'>总订单金额</Option>
               </Select>
               <Select value={this.state.sorterType}
                       onChange={sorterType => this.setState({sorterType}, e => this.getList(1))}>
@@ -678,7 +712,7 @@ export default class extends PureComponent {
           rowKey={record => record.id}
           columns={columns}
           dataSource={list}
-          scroll={{x: 1300}}
+          scroll={{x: 1600}}
           loading={loading.effects[`${modelNameSpace}/get`]}
         />
       </div>
@@ -779,7 +813,7 @@ export default class extends PureComponent {
           return (
             <div>
               <p><Badge text={obj.text} status={obj.status}/></p>
-              <p>{moment(row.firstOrderDate)<moment('2018-7-30')? <Badge text='历史变体' status='warning'/>:null}</p>
+              <p>{moment(row.firstOrderDate) < moment('2018-7-30') ? <Badge text='历史变体' status='warning'/> : null}</p>
             </div>
 
           )
@@ -793,14 +827,19 @@ export default class extends PureComponent {
         title='已出单的ASIN详情'
         onClose={e => this.setState({detailDrawerProps: {visible: false}})}
       >
-        <div style={{float:'right'}}>
-          <span style={{marginRight:10}}>隐藏历史变体</span>
+        <div style={{float: 'right'}}>
+          <span style={{marginRight: 10}}>隐藏历史变体</span>
           <Switch
             checked={this.state.detailDrawerProps.hideHistoryAsin}
-            onChange={hideHistoryAsin=>this.setState({detailDrawerProps:{...this.state.detailDrawerProps,hideHistoryAsin,}},e=>this.getDetailList(1))}
+            onChange={hideHistoryAsin => this.setState({
+              detailDrawerProps: {
+                ...this.state.detailDrawerProps,
+                hideHistoryAsin,
+              }
+            }, e => this.getDetailList(1))}
           />
         </div>
-        <div style={{clear:'both'}} />
+        <div style={{clear: 'both'}}/>
         {this.renderDetailHeader()}
         <DescriptionList style={{marginBottom: 24}} col="3">
           <Description term="父ASIN">{P_ASIN}</Description>
@@ -863,7 +902,7 @@ export default class extends PureComponent {
         break;
     }
     return (
-      <Breadcrumb style={{padding: '8px 24px 0px 24px', fontSize: 13}}>
+      <Breadcrumb style={{padding: '24px 24px 0px 24px', fontSize: 14}}>
         <Breadcrumb.Item><a onClick={e => {
           window.history.back()
         }}>返回</a></Breadcrumb.Item>
@@ -879,6 +918,7 @@ export default class extends PureComponent {
     const {pagination, role} = this.props;
     const {pageIndex, data: {total}} = this.props[modelNameSpace];
     const fxLayoutProps = {
+      pageHeader:false,
       header: {
         extra: this.renderSearchForm(),
       },
@@ -911,20 +951,7 @@ export default class extends PureComponent {
   }
 
   render() {
-    const {pagination, role} = this.props;
-    const {pageIndex, data: {total}} = this.props[modelNameSpace];
-    const fxLayoutProps = {
-      header: {
-        extra: this.renderSearchForm(),
-      },
-      body: {
-        center: this.renderTable(),
-      },
-      footer: {
-        pagination: pagination({pageIndex, total}, this.getList),
-      }
-    };
-
+    const {role} = this.props;
     return (
       <div className={classNames({
         ['white-body']: true,

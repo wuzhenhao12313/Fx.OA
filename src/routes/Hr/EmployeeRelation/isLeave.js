@@ -387,6 +387,7 @@ export default class extends PureComponent {
     const {pageIndex, data: {total}, employeeCountModel} = this.props[modelNameSpace];
     const {waitingLeaveCount, leaveCount} = employeeCountModel;
     const fxLayoutProps = {
+      pageHeader:false,
       header: {
         extra: this.renderSearchForm(),
       },

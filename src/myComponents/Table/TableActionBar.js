@@ -26,22 +26,12 @@ export default class extends React.Component {
   }
 
   render() {
-    const {action=[], more,...restProps} = this.props;
-    const length = action.length;
+    const {action = [], more, ...restProps} = this.props;
+    const length = action.filter(x => x.isShow === undefined ? true : x.isShow).length;
     return (
       <div>
-        {action&&action.map((child, idx) => {
-          let {isShow} = child;
-          isShow = isShow === undefined ? true : isShow;
-          if (isShow) {
-            if (length - 1 === idx) {
-              if (more) {
-                return this.renderWrap(child, idx, true);
-              }
-              return this.renderWrap(child, idx, false);
-            }
-            return this.renderWrap(child, idx, true);
-          }
+        {action && action.filter(x => x.isShow === undefined ? true : x.isShow).map((child, idx) => {
+          return this.renderWrap(child, idx, !(length - 1 === idx&&!more));
         })
         }
         {more ? <MoreBtn items={more} {...restProps}/> : null}

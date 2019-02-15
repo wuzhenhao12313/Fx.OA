@@ -502,9 +502,7 @@ export default class extends PureComponent {
           model.setState({
             filter: {
               ...this.props[modelNameSpace].filter,
-              dateType: 'entry',
-              startDate: moment().startOf('month').format('YYYY-MM-DD'),
-              endDate: moment().endOf('month').format('YYYY-MM-DD'),
+              entryDate:[moment().startOf('month'),moment().endOf('month')]
             }
           }).then(() => {
             model.push(`/hr/employee/list`);
@@ -521,10 +519,8 @@ export default class extends PureComponent {
           model.setState({
             filter: {
               ...this.props[modelNameSpace].filter,
-              dateType: 'leave',
               workStatus: ['quit'],
-              startDate: moment().startOf('month').format('YYYY-MM-DD'),
-              endDate: moment().endOf('month').format('YYYY-MM-DD'),
+              leaveDate: [moment().startOf('month'), moment().endOf('month')],
             }
           }).then(() => {
             model.push(`/hr/employee/list`);

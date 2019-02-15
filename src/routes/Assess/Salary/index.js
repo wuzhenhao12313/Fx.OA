@@ -18,7 +18,7 @@ import Salary from './salary';
 const modelNameSpace = "assess-salary";
 const Fragment = React.Fragment;
 const FormItem = Form.Item;
-const RadioButton=Radio.Button;
+
 
 @connect(state => ({
   [modelNameSpace]: state[modelNameSpace],

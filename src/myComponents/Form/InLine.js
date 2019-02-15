@@ -8,12 +8,14 @@ const FormItem=Form.Item;
 export default class extends React.Component {
 
   render() {
-    const {item, form: {getFieldDecorator}} = this.props;
+    const {item, form: {getFieldDecorator},wrappedComponentRef} = this.props;
+    const _ref = wrappedComponentRef ? {wrappedComponentRef: wrappedComponentRef} : {};
     if (item && item.length > 0) {
       return (
         <Form
           layout='inline'
           {...this.props}
+          {..._ref}
         >
           {
             item.map((i,idx)=>{

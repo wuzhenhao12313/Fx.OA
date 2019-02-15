@@ -346,6 +346,17 @@ export default class extends PureComponent {
         dataIndex: 'saleNum',
       },
       {
+        title:'总订单数量',
+        dataIndex:'orderNum',
+      },
+      {
+        title:'总订单金额',
+        dataIndex:'orderMoney',
+        render:(text)=>{
+          return Format.Money.Dollar(text);
+        }
+      },
+      {
         title: '出单率',
         dataIndex: 'saleRate',
         align: 'center',
@@ -379,6 +390,17 @@ export default class extends PureComponent {
         dataIndex: 'saleNum',
       },
       {
+        title:'总订单数量',
+        dataIndex:'orderNum',
+      },
+      {
+        title:'总订单金额',
+        dataIndex:'orderMoney',
+        render:(text)=>{
+          return Format.Money.Dollar(text);
+        }
+      },
+      {
         title: '出单率',
         dataIndex: 'saleRate',
         align: 'center',
@@ -388,6 +410,7 @@ export default class extends PureComponent {
                       width={45}/>)
         }
       },
+
     ];
     const shopColumns=[
       {
@@ -413,6 +436,17 @@ export default class extends PureComponent {
       {
         title: '出单数量',
         dataIndex: 'saleNum',
+      },
+      {
+        title:'总订单数量',
+        dataIndex:'orderNum',
+      },
+      {
+        title:'总订单金额',
+        dataIndex:'orderMoney',
+        render:(text)=>{
+          return Format.Money.Dollar(text);
+        }
       },
       {
         title: '出单率',
@@ -452,6 +486,8 @@ export default class extends PureComponent {
               <Radio.Group style={{marginBottom:12}} value={this.state.saleRateSorterColumn} onChange={e=>this.setState({saleRateSorterColumn:e.target.value},()=>this.getSaleRate(1))}>
                 <Radio.Button value="saleRate">按出单率排行</Radio.Button>
                 <Radio.Button value="saleNum">按出单个数排行</Radio.Button>
+                <Radio.Button value="orderNum">按总订单数量排行</Radio.Button>
+                <Radio.Button value="orderMoney">按总订单金额排行</Radio.Button>
               </Radio.Group>
               <Table
                 size='default'
@@ -474,6 +510,8 @@ export default class extends PureComponent {
               <Radio.Group style={{marginBottom:12}} value={this.state.saleRateSorterColumn} onChange={e=>this.setState({saleRateSorterColumn:e.target.value},()=>this.getSaleRate(1))}>
                 <Radio.Button value="saleRate">按出单率排行</Radio.Button>
                 <Radio.Button value="saleNum">按出单个数排行</Radio.Button>
+                <Radio.Button value="orderNum">按总订单数量排行</Radio.Button>
+                <Radio.Button value="orderMoney">按总订单金额排行</Radio.Button>
               </Radio.Group>
               <Table
                 size='default'
@@ -495,6 +533,8 @@ export default class extends PureComponent {
               <Radio.Group style={{marginBottom:12}} value={this.state.saleRateSorterColumn} onChange={e=>this.setState({saleRateSorterColumn:e.target.value},()=>this.getSaleRate(1))}>
                 <Radio.Button value="saleRate">按出单率排行</Radio.Button>
                 <Radio.Button value="saleNum">按出单个数排行</Radio.Button>
+                <Radio.Button value="orderNum">按总订单数量排行</Radio.Button>
+                <Radio.Button value="orderMoney">按总订单金额排行</Radio.Button>
               </Radio.Group>
               <Table
                 size='default'

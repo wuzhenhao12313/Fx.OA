@@ -184,7 +184,7 @@ export default class extends PureComponent {
   render() {
     const {loading} = this.props;
     const fxLayoutProps = {
-      header: {
+      pageHeader: {
         title: '周预算申请报表',
         actions: [
           {

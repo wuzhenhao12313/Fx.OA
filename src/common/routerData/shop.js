@@ -22,5 +22,17 @@ export const getShop= ({app, dynamicWrapper}) => {
       name: '我的铺货任务',
       component: dynamicWrapper ? dynamicWrapper(app, ['grounding-task','grounding-asin','grounding-asin-not-download'], () => import('../../routes/Shop/Grounding/task')) : null,
     },
+    [`${prefix}/upc/company`]:  {
+      name: 'UPC管理-公司',
+      component: dynamicWrapper ? dynamicWrapper(app, ['upc-company'], () => import('../../routes/Shop/UPC/Company')) : null,
+    },
+    [`${prefix}/upc/department`]:  {
+      name: 'UPC管理-部门',
+      component: dynamicWrapper ? dynamicWrapper(app, ['upc-department'], () => import('../../routes/Shop/UPC/Department')) : null,
+    },
+    [`${prefix}/upc/shop`]:  {
+      name: 'UPC管理-店铺',
+      component: dynamicWrapper ? dynamicWrapper(app, ['upc-shop'], () => import('../../routes/Shop/UPC/Shop')) : null,
+    },
   }
 }

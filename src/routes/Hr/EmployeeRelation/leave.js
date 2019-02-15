@@ -664,6 +664,7 @@ export default class extends PureComponent {
     const {pageIndex, data: {total}, employeeCountModel} = this.props[modelNameSpace];
     const {waitingLeaveCount, leaveCount} = employeeCountModel;
     const fxLayoutProps = {
+      pageHeader:false,
       header: {
         title: (
           <div style={{fontSize: 18, fontWeight: 'bold'}}>
@@ -673,7 +674,7 @@ export default class extends PureComponent {
             </a>
           </div>
         ),
-        titleStyle: {paddingTop: 8},
+        titleStyle: {paddingTop: 24},
         type: 'custom',
         extra: this.renderSearchForm(),
 

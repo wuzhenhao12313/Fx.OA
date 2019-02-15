@@ -2,22 +2,12 @@
 
 .contentFold {
   //width: ~"calc(100vw - 50px)";
-  margin-left: 50px;
+  margin-left: 80px;
 
-  &.hasStage {
-    width: ~"calc(100vw - @{sider-base-width} - 50px)";
-    margin-left:  ~"calc(@{sider-base-width} + 50px)";
-    transition: all ease .5s;
-  }
 }
 
 .contentUnfold {
   //width: ~"calc(100vw - @{sider-base-width})";
   margin-left: @sider-base-width;
-
-  &.hasStage {
-    width: ~"calc(100vw - @{sider-base-width} - 180px)";
-    margin-left: ~"calc(@{sider-base-width} + 180px)";
-  }
 }
 

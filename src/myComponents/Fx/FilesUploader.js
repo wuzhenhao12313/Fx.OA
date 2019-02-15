@@ -7,9 +7,9 @@ function beforeUpload(file, reg, text) {
   if (!isFile) {
     message.error(`只能上传${text}格式的文件`);
   }
-  const isLt2M = file.size / 1024 / 1024 < 20;
+  const isLt2M = file.size / 1024 / 1024 < 100;
   if (!isLt2M) {
-    message.error('上传的文件不能大于 20MB!');
+    message.error('上传的文件不能大于 100MB!');
   }
   return isLt2M && isFile;
 }
@@ -46,16 +46,23 @@ export default class extends React.Component {
       fileList: _fileList,
     });
     const list = [];
+    let result=false;
+    let doMsg="";
     fileList.map(file => {
       const {status, response} = file;
       if (status === 'done' && response) {
-        const {data} = file.response;
-        const _data = data.toObject();
-        if (_data.fileList.length > 0) {
-          list.push({
-            name: file.name,
-            url: _data.fileList[0],
-          });
+        const {data,success,msg} = file.response;
+        if(data){
+          const _data = data.toObject();
+          if (_data.fileList.length > 0) {
+            list.push({
+              name: file.name,
+              url: _data.fileList[0],
+            });
+          }
+        }else {
+          result=success;
+          doMsg=msg;
         }
       }
       if (status === 'default') {
@@ -66,7 +73,7 @@ export default class extends React.Component {
         });
       }
     });
-    onChange(list);
+    onChange(list,result,doMsg);
   }
 
   updateDefaultFileList = () => {
@@ -98,7 +105,7 @@ export default class extends React.Component {
   }
 
   render() {
-    const {type, max = 5, desc, onChange, defaultFileList, ...restProps} = this.props;
+    const {type, max = 5, desc,handle,btnName, onChange, defaultFileList, ...restProps} = this.props;
     const regObj = {}
     switch (type) {
       case "compress":
@@ -134,12 +141,13 @@ export default class extends React.Component {
         {...restProps}
         fileList={fileList}
         onChange={this.handleChange}
+        withCredentials={true}
       >
         {fileList.length >= max ? null :
           <Fragment>
-            <Button>
-              <Icon type="upload"/> 上传
-            </Button>
+            {!handle?<Button>
+              <Icon type="upload"/> {btnName?'上传':btnName}
+            </Button>:handle}
             {desc ? <span style={{marginLeft: 10}}> {desc}</span> : null}
           </Fragment>
         }

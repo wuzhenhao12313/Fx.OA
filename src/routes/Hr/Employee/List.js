@@ -689,7 +689,7 @@ export default class extends PureComponent {
       //   dataIndex: 'workPhotoUrl',
       //   key: 'workPhotoUrl',
       //   hide: true,
-      //   render: (value, row, index) => {
+      //   render: (value, row, index.less) => {
       //     return <Picture size={[45, 60]} modalSize={[400, 498]} value={value}/>;
       //   },
       // },
@@ -738,33 +738,33 @@ export default class extends PureComponent {
       //   dataIndex: 'dingID',
       //   key: 'dingID',
       // },
-      // {
-      //   title: '性别',
-      //   dataIndex: 'sex',
-      //   key: 'sex',
-      //   render: (text) => {
-      //     return text === 'man' ? "男" : "女";
-      //   },
-      // },
-      // {
-      //   title: '年龄',
-      //   dataIndex: 'age',
-      //   key: 'age',
-      //   render: (text, row) => {
-      //     const {birthday} = row;
-      //     return moment().diff(moment(birthday), 'year');
-      //   }
-      // },
-      // {
-      //   title: '出生日期',
-      //   dataIndex: 'birthday',
-      //   key: 'birthday',
-      //   sorter: true,
-      //   sortOrder: sorter['sorterColumn'] === 'birthday' ? sorter['sorterType'] : false,
-      //   render: (value) => {
-      //     return Format.Date.Format(value, 'YYYY-MM-DD');
-      //   }
-      // },
+      {
+        title: '性别',
+        dataIndex: 'sex',
+        key: 'sex',
+        render: (text) => {
+          return text === 'man' ? "男" : "女";
+        },
+      },
+      {
+        title: '年龄',
+        dataIndex: 'age',
+        key: 'age',
+        render: (text, row) => {
+          const {birthday} = row;
+          return moment().diff(moment(birthday), 'year');
+        }
+      },
+      {
+        title: '出生日期',
+        dataIndex: 'birthday',
+        key: 'birthday',
+        sorter: true,
+        sortOrder: sorter['sorterColumn'] === 'birthday' ? sorter['sorterType'] : false,
+        render: (value) => {
+          return Format.Date.Format(value, 'YYYY-MM-DD');
+        }
+      },
       {
         title: '转正日期',
         dataIndex: 'correctionDate',
@@ -813,19 +813,18 @@ export default class extends PureComponent {
       //     return "****";
       //   }
       // },
-      // {
-      //   title: '基本薪资',
-      //   dataIndex: 'salary',
-      //   key: 'salary',
-      //   sorter: true,
-      //   render: (value) => {
-      //     const {columnList} = this.props;
-      //     if (columnList.contains('salary')) {
-      //       return Format.Money.Rmb(value);
-      //     }
-      //     return "****";
-      //   }
-      // },
+      {
+        title: '基本薪资',
+        dataIndex: 'salary',
+        key: 'salary',
+        render: (value) => {
+          const {columnList} = this.props;
+          if (columnList.contains('salary')) {
+            return Format.Money.Rmb(value);
+          }
+          return "****";
+        }
+      },
       {
         title: '工作状态',
         dataIndex: 'workStatus',

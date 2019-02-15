@@ -125,7 +125,7 @@ export default class extends PureComponent {
         align: 'center',
         children: [
           {
-            title: '基础评分',
+            title: '指标1',
             dataIndex: 'm_baseScoreRate',
             align: 'center',
             render: (text) => {
@@ -133,7 +133,7 @@ export default class extends PureComponent {
             }
           },
           {
-            title: '指标完成',
+            title: '指标2',
             dataIndex: 'm_targetScoreRate',
             align: 'center',
             render: (text) => {
@@ -141,7 +141,7 @@ export default class extends PureComponent {
             }
           },
           {
-            title: '运营总监考评',
+            title: '指标3',
             dataIndex: 'm_cooScoreRate',
             align: 'center',
             render: (text) => {
@@ -149,7 +149,7 @@ export default class extends PureComponent {
             }
           },
           {
-            title: '总经理考评',
+            title: '指标4',
             dataIndex: 'm_gmScoreRate',
             align: 'center',
             render: (text) => {
@@ -157,7 +157,7 @@ export default class extends PureComponent {
             }
           },
           {
-            title: '组员打分',
+            title: '指标5',
             dataIndex: 'm_memberScoreRate',
             align: 'center',
             render: (text) => {
@@ -172,7 +172,7 @@ export default class extends PureComponent {
         align: 'center',
         children: [
           {
-            title: '综合素质',
+            title: '指标1',
             dataIndex: 'e_allRoundScoreRate',
             align: 'center',
             render: (text) => {
@@ -180,7 +180,7 @@ export default class extends PureComponent {
             }
           },
           {
-            title: '指标完成',
+            title: '指标2',
             dataIndex: 'e_targetScoreRate',
             align: 'center',
             render: (text) => {
@@ -188,7 +188,7 @@ export default class extends PureComponent {
             }
           },
           {
-            title: '运营总监考评',
+            title: '指标3',
             dataIndex: 'e_cooScoreRate',
             align: 'center',
             render: (text) => {
@@ -196,7 +196,7 @@ export default class extends PureComponent {
             }
           },
           {
-            title: '部门经理考评',
+            title: '指标4',
             dataIndex: 'e_gmScoreRate',
             align: 'center',
             render: (text) => {
@@ -204,7 +204,7 @@ export default class extends PureComponent {
             }
           },
           {
-            title: '工作考评',
+            title: '指标5',
             dataIndex: 'e_workingScoreRate',
             align: 'center',
             render: (text) => {
@@ -222,6 +222,7 @@ export default class extends PureComponent {
           columns={columns}
           dataSource={config}
           rowKey={record => record.id}
+          bordered={true}
         />
         <ConsoleTitle type='h2' title='部门考核人员'/>
         {this.renderRecordUserList()}
@@ -260,7 +261,7 @@ export default class extends PureComponent {
         align: 'center',
         children: [
           {
-            title: '基础评分',
+            title: '指标1',
             dataIndex: 'm_baseScore',
             align: 'center',
             render: (text) => {
@@ -276,7 +277,7 @@ export default class extends PureComponent {
             }
           },
           {
-            title: '指标完成',
+            title: '指标2',
             dataIndex: 'm_targetScore',
             align: 'center',
             render: (text) => {
@@ -292,7 +293,7 @@ export default class extends PureComponent {
             }
           },
           {
-            title: '运营总监考评',
+            title: '指标3',
             dataIndex: 'm_cooScore',
             align: 'center',
             render: (text) => {
@@ -308,7 +309,7 @@ export default class extends PureComponent {
             }
           },
           {
-            title: '总经理考评',
+            title: '指标4',
             dataIndex: 'm_gmScore',
             align: 'center',
             render: (text) => {
@@ -324,7 +325,7 @@ export default class extends PureComponent {
             }
           },
           {
-            title: '组员打分',
+            title: '指标5',
             dataIndex: 'm_memberScore',
             align: 'center',
             render: (text) => {
@@ -347,7 +348,7 @@ export default class extends PureComponent {
         align: 'center',
         children: [
           {
-            title: '综合素质',
+            title: '指标1',
             dataIndex: 'e_allRoundScore',
             align: 'center',
             render: (text) => {
@@ -363,7 +364,7 @@ export default class extends PureComponent {
             }
           },
           {
-            title: '指标完成',
+            title: '指标2',
             dataIndex: 'e_targetScore',
             align: 'center',
             render: (text) => {
@@ -379,7 +380,7 @@ export default class extends PureComponent {
             }
           },
           {
-            title: '运营总监考评',
+            title: '指标3',
             dataIndex: 'e_cooScore',
             align: 'center',
             render: (text) => {
@@ -395,7 +396,7 @@ export default class extends PureComponent {
             }
           },
           {
-            title: '部门经理考评',
+            title: '指标4',
             dataIndex: 'e_gmScore',
             align: 'center',
             render: (text) => {
@@ -411,7 +412,7 @@ export default class extends PureComponent {
             }
           },
           {
-            title: '工作考评',
+            title: '指标5',
             dataIndex: 'e_workingScore',
             align: 'center',
             render: (text) => {
@@ -435,6 +436,7 @@ export default class extends PureComponent {
         columns={columns}
         dataSource={recordUserList}
         rowKey={record => record.id}
+        bordered
       />
     )
   }

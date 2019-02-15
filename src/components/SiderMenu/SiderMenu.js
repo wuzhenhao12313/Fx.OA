@@ -69,30 +69,32 @@ export default class SiderMenu extends PureComponent {
       return true;
     });
     if (routerData[path] || routerData[matchPath]) {
-      const {selectedCode} = routerData[path] || routerData[matchPath];
-      if (selectedCode) {
-        let myKey = [];
-        Object.keys(routerData).every(key => {
-          if (routerData[key].code === selectedCode) {
-            myKey.push(key.substring(1, key.length));
-            return false;
-          }
-          return true;
-        });
-        return myKey;
-      } else {
-        if (flatMenuKeys.indexOf(path.replace(/^\//, '')) > -1) {
-          return [path.replace(/^\//, '')];
-        }
-        if (flatMenuKeys.indexOf(path.replace(/^\//, '').replace(/\/$/, '')) > -1) {
-          return [path.replace(/^\//, '').replace(/\/$/, '')];
-        }
-        return flatMenuKeys.filter((item) => {
-          const itemRegExpStr = `^${item.replace(/:[\w-]+/g, '[\\w-]+')}$`;
-          const itemRegExp = new RegExp(itemRegExpStr);
-          return itemRegExp.test(path.replace(/^\//, ''));
-        });
+      // const {selectedCode} = routerData[path] || routerData[matchPath];
+      // if (selectedCode) {
+      //   let myKey = [];
+      //   Object.keys(routerData).every(key => {
+      //     if (routerData[key].code === selectedCode) {
+      //       myKey.push(key.substring(1, key.length));
+      //       return false;
+      //     }
+      //     return true;
+      //   });
+      //   return myKey;
+      // } else {
+      //
+      // }
+
+      if (flatMenuKeys.indexOf(path.replace(/^\//, '')) > -1) {
+        return [path.replace(/^\//, '')];
       }
+      if (flatMenuKeys.indexOf(path.replace(/^\//, '').replace(/\/$/, '')) > -1) {
+        return [path.replace(/^\//, '').replace(/\/$/, '')];
+      }
+      return flatMenuKeys.filter((item) => {
+        const itemRegExpStr = `^${item.replace(/:[\w-]+/g, '[\\w-]+')}$`;
+        const itemRegExp = new RegExp(itemRegExpStr);
+        return itemRegExp.test(path.replace(/^\//, ''));
+      });
     }
   }
 
@@ -111,13 +113,13 @@ export default class SiderMenu extends PureComponent {
         itemPath = `/${item.path || ''}`.replace(/\/+/g, '/');
       }
       if (item.children && item.children.some(child => child.name)) {
-        return item.hideInMenu || item.children.length === 0 ? null : item.parentID === 0 ?
+        return item.hideInMenu || item.children.length === 0 ? null : item.children.length>0 ?
           (
             <SubMenu
               title={
                 item.icon ? (
                   <span>
-                    <Icon type={item.icon}/>
+                    {item.icon&&item.parentID===0 && <Icon type={item.icon}/>}
                     <span>{item.name}</span>
                   </span>
                 ) : item.name
@@ -130,7 +132,7 @@ export default class SiderMenu extends PureComponent {
             {
               /^https?:\/\//.test(itemPath) ? (
                 <a href={itemPath} target={item.target}>
-                  {item.icon && <Icon type={item.icon}/>}<span>{item.name}</span>
+                  {item.icon&&item.parentID===0 && <Icon type={item.icon}/>}<span>{item.name}</span>
                 </a>
               ) : (
                 <a
@@ -138,7 +140,7 @@ export default class SiderMenu extends PureComponent {
                   replace={itemPath === this.props.location.pathname}
                   onClick={() => this.handleOpenPage(itemPath, item.menuCode, item.name)}
                 >
-                  {item.icon && <Icon type={item.icon}/>}<span>{item.name}</span>
+                  {item.icon &&item.parentID===0&& <Icon type={item.icon}/>}<span>{item.name}</span>
                 </a>
               )
             }
@@ -151,7 +153,7 @@ export default class SiderMenu extends PureComponent {
             {
               /^https?:\/\//.test(itemPath) ? (
                 <a href={itemPath} target={item.target}>
-                  {icon}<span>{item.name}</span>
+                  <span>{item.name}</span>
                 </a>
               ) : (
                 <a
@@ -159,7 +161,7 @@ export default class SiderMenu extends PureComponent {
                   replace={itemPath === this.props.location.pathname}
                   onClick={() => this.handleOpenPage(itemPath, item.menuCode, item.name)}
                 >
-                  {icon}<span>{item.name}</span>
+                  <span>{item.name}</span>
                 </a>
               )
             }
@@ -253,18 +255,18 @@ export default class SiderMenu extends PureComponent {
     const menuProps = collapsed ? {} : {
       openKeys,
     };
-    const stageProps = stage.childNavList.length > 0 ? {stage: {nav: stage.childNavList, title: stage.title}} : {};
+    // const stageProps = stage.childNavList.length > 0 ? {stage: {nav: stage.childNavList, title: stage.title}} : {};
 
-    const theme = 'light';
+    const theme = 'dark';
     return (
       <Fragment>
         <Sider
           trigger={null}
-          collapsedWidth={50}
+          collapsedWidth={80}
           collapsible
           collapsed={collapsed}
           onCollapse={onCollapse}
-          width={220}
+          width={256}
           className={`${styles.sider}`}
         >
           <div className={classNames(styles.logo, {
@@ -284,12 +286,11 @@ export default class SiderMenu extends PureComponent {
             {...menuProps}
             onOpenChange={this.handleOpenChange}
             selectedKeys={this.getSelectedMenuKeys(pathname)}
-            style={{height: 'calc(100vh - 50px)'}}
           >
             {this.getNavMenuItems(menu)}
           </Menu>
         </Sider>
-        {stage.childNavList.length > 0 ? <StageMenu {...stageProps}/> : null}
+        {/*{stage.childNavList.length > 0 ? <StageMenu {...stageProps}/> : null}*/}
       </Fragment>);
   }
 }

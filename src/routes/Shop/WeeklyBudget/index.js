@@ -340,7 +340,7 @@ export default class extends PureComponent {
     const {loading, pagination} = this.props;
     const {data: {total}, pageIndex,} = this.props[modelNameSpace];
     const fxLayoutProps = {
-      header: {
+      pageHeader: {
         title: '我的周预算申请',
         actions: [
           {
@@ -351,7 +351,6 @@ export default class extends PureComponent {
               onClick: e => this.getList(),
             }
           }
-
         ]
       },
       body: {

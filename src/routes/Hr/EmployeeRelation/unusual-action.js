@@ -250,9 +250,10 @@ export default class extends PureComponent {
     const {pagination} = this.props;
     const {pageIndex, data: {total}} = this.props[modelNameSpace];
     const fxLayoutProps = {
+      pageHeader:false,
       header: {
         extra: this.renderSearchForm(),
-        style:{paddingTop:8},
+        style:{paddingTop:24},
       },
       body: {
         center: this.renderTable(),

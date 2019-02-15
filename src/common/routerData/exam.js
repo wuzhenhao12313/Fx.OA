@@ -33,14 +33,9 @@ export const getExam = ({app, dynamicWrapper}) => {
       component: dynamicWrapper ? dynamicWrapper(app, ['exam-question-home'], () => import('../../routes/Exam/Question/Home')) : null,
     },
     [`${prefix}/question/list`]: {
-      name: '题库管理',
+      name: '列表',
       selectedCode: menuCode.question,
       component: dynamicWrapper ? dynamicWrapper(app, ['exam-question-list'], () => import('../../routes/Exam/Question/List')) : null,
-    },
-    [`${prefix}/question/remove`]: {
-      name: '题库管理',
-      selectedCode: menuCode.question,
-      component: dynamicWrapper ? dynamicWrapper(app, ['exam-question-list'], () => import('../../routes/Exam/Question/RemoveList')) : null,
     },
     [`${prefix}/template`]: {
       name: '模板管理',
@@ -48,7 +43,7 @@ export const getExam = ({app, dynamicWrapper}) => {
       redirect: `${prefix}/template/list`,
     },
     [`${prefix}/template/list`]: {
-      name: '模板管理',
+      name: '列表',
       selectedCode: menuCode.template,
       component: dynamicWrapper ? dynamicWrapper(app, ['exam-template'], () => import('../../routes/Exam/Template/List')) : null,
     },
@@ -59,12 +54,12 @@ export const getExam = ({app, dynamicWrapper}) => {
     },
 
     [`${prefix}/paper/list`]: {
-      name: '试卷管理-列表',
+      name: '列表',
       selectedCode: menuCode.paper,
       component: dynamicWrapper ? dynamicWrapper(app, ['exam-paper'], () => import('../../routes/Exam/Paper/List')) : null,
     },
     [`${prefix}/paper/remove`]: {
-      name: '试卷管理-回收站',
+      name: '回收站',
       selectedCode: menuCode.paper,
       component: dynamicWrapper ? dynamicWrapper(app, ['exam-paper'], () => import('../../routes/Exam/Paper/List')) : null,
     },

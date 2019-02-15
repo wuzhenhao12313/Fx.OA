@@ -635,8 +635,11 @@ export default class extends PureComponent {
     const {data: {total}, pageIndex} = this.props[modelNameSpace];
     const {templateModal, isDelete, printModal} = this.state;
     const fxLayoutProps = {
-      header: {
+      pageHeader:{
         title: !isDelete ? '试卷列表' : '回收站',
+      },
+      header: {
+
         extra: this.renderSearchForm(),
       },
       body: {

@@ -87,6 +87,32 @@ export function fetchApiSync({url, params}) {
   return res;
 }
 
+
+export function fetchServiceSync({url, params}) {
+  let res = null;
+  try {
+    jQuery.ajax({
+      type: 'get',
+      url: Config.GetConfig('fxService') + url,
+      data: {
+        ...params,
+      },
+      xhrFields: {
+        withCredentials: true,
+      },
+      crossDomain: true,
+      async: false,
+      success: function (result) {
+        res=result;
+      }
+    });
+  } catch (ex) {
+    console.log(ex);
+    return res;
+  }
+  return res;
+}
+
 export function fetchDictSync({typeCode, itemCode}) {
   let res = null;
   try {

@@ -173,8 +173,6 @@ export default class extends React.PureComponent {
         NProgress.done();
       }, 10000);
     }
-    const stage = jQuery('#stage');
-    const contentHeight = stage.length > 0 && Config.webSetting.stageLayout === 'top'?100:50;
     const layout = (
       <Layout>
         <SiderMenu
@@ -187,7 +185,7 @@ export default class extends React.PureComponent {
           isMobile={this.state.isMobile}
           logo={logo}
         />
-        <Layout style={{backgroundColor:'#fff'}}>
+        <Layout>
           <GlobalHeader
             currentUser={currentUser}
             fetchingNotices={fetchingNotices}
@@ -204,10 +202,9 @@ export default class extends React.PureComponent {
             className={classNames({
               [styles.contentFold]: collapsed,
               [styles.contentUnfold]: !collapsed,
-              [styles.hasStage]: stage.length > 0 && Config.webSetting.stageLayout === 'left',
             })
             }>
-            <div style={{marginTop: contentHeight}}>
+            <div style={{marginTop: 64}}>
               <Switch>
                 {
                   redirectData.map(item =>

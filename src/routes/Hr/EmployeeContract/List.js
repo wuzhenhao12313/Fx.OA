@@ -861,6 +861,7 @@ export default class extends PureComponent {
       },
     ];
     const fxLayoutProps = {
+      pageHeader:false,
       header: {
         title: '合同列表',
         left: {

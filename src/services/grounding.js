@@ -83,6 +83,10 @@ export async function  refreshAsinByID(params) {
   return Http.AutoError.Post(`${prefix}/RefreshAsinByID`, params);
 }
 
+export async function  downloadAsinByID(params) {
+  return Http.AutoError.Post(`${prefix}/DownloadAsinByID`, params);
+}
+
 export async function  getAsinList(params) {
   return Http.AutoError.Get(`${prefix}/GetAsinList`, params);
 }
@@ -109,3 +113,5 @@ export  async function getDepartmentAsinCategoryDataCount(params) {
 export  async function getGroundingDepartment(params) {
   return Http.AutoError.Get(`${prefix}/GetGroundingDepartment`, params);
 }
+
+

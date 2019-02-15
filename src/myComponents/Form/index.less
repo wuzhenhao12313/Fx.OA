@@ -1,4 +1,6 @@
 @import "../../theme/default.less";
+@import "~antd/lib/style/themes/default.less";
+
 .searchForm {
   .mainForm{
     :global {
@@ -18,8 +20,8 @@
   }
   .advanceForm{
     padding: 24px 24px 16px 24px;
-    border: 1px solid #b4e7d4;
-    margin-bottom: 12px;
+    border: 1px solid @primary-color;
+    margin-bottom: 24px;
     :global{
       .ant-form-item {
         margin-bottom: 4px;
@@ -67,8 +69,8 @@
     position: absolute;
     width: 14px;
     height: 14px;
-    border-top: 1px solid #b4e7d4;
-    border-left: 1px solid #b4e7d4;
+    border-top: 1px solid @primary-color;
+    border-left: 1px solid @primary-color;
     transform: rotate(45deg);
     top: 34px;
     left: 30px;

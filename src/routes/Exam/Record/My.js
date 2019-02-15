@@ -165,8 +165,11 @@ export default class extends React.Component {
     const {data: {total}, pageIndex} = this.props[modelNameSpace];
     const {recordStatus} = this.state;
     const fxLayoutProps = {
-      header: {
+      pageHeader:{
         title: `我的考试记录`,
+      },
+      header: {
+
         // tabs: {
         //   items: [
         //     {title: '待审核', key: "0"},

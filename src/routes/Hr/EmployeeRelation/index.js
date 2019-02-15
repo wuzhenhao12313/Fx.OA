@@ -49,7 +49,7 @@ export default class extends PureComponent {
     return (
       <div className={
         classNames({
-          ['whiteBody']: true,
+          ['whiteBody']: false,
           [Styles.employeeRelation]: true,
         })
       }>

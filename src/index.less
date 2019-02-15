@@ -11,6 +11,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
   color: #333333 !important;
   //overflow: hidden;
+  background-color: #f0f2f5!important;
 }
 
 a {
@@ -128,7 +129,7 @@ p{
   }
 
   .ant-layout-top-50{
-    height: ~"calc(100vh - 50px)" !important;
+    height: ~"calc(100vh - 64px)" !important;
     background: #f0f2f5!important;
   }
 
@@ -138,6 +139,8 @@ p{
       padding: 0 12px;
       box-shadow: 0 5px 12px -3px rgba(221, 222, 225, 0.5);
       border-bottom:none;
+      background-color: #fff;
+      margin: 0!important;
     }
     .ant-tabs-ink-bar{
       background-color: #fff!important;
@@ -330,12 +333,12 @@ p{
       line-height: 26px !important;;
     }
   }
-  .ant-pagination-item-active {
-    background-color: @primary-color !important;
-    & > a, &:hover > a {
-      color: #fff !important;
-    }
-  }
+  //.ant-pagination-item-active {
+  //  background-color: @primary-color !important;
+  //  & > a, &:hover > a {
+  //    color: #fff !important;
+  //  }
+  //}
   .ant-btn-default {
     color: #333 !important;
     background-color: #F7F7F7 !important;

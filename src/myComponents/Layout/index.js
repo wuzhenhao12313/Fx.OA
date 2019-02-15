@@ -1,6 +1,7 @@
 import React, {PureComponent} from 'react';
 import {Select, Tabs, Badge, Spin} from 'antd';
 import {connect} from 'dva';
+import {Link,} from 'dva/router';
 import classNames from 'classnames';
 import jQuery from 'jquery';
 import ScrollWrapper from '../Fx/ScrollWrapper';
@@ -10,6 +11,7 @@ import TagRadio from '../Fx/TagRadio';
 import Pagination from '../Fx/Pagination';
 import styles from './index.less';
 import Config from '../../utils/rs/Config';
+import PageHeader from '../../components/PageHeader/';
 
 const Fragment = React.Fragment;
 const TabPane = Tabs.TabPane;
@@ -24,9 +26,6 @@ export default class extends PureComponent {
   }
 
   componentDidMount() {
-    jQuery('.fx-layout-header').resize(function () {
-      console.log(jQuery(`.fx-layout-header`).height())
-    });
     // // this.resizeBody();
   }
 
@@ -49,7 +48,7 @@ export default class extends PureComponent {
 
   renderHeader() {
     const {header} = this.props;
-    const {title, left, actions, extra, sorter, tabs, render,right, padding = true,style,titleStyle,type='h1',} = header;
+    const {title, left, actions, extra, sorter, tabs, render, right, padding = true, style, titleStyle, type = 'h1',} = header;
     const _sorter = sorter || {};
     const _tabs = tabs || {};
     const {columns, current, onSorter} = _sorter;
@@ -77,36 +76,36 @@ export default class extends PureComponent {
                 type={type}
                 bordered={false}
               /> : null}
-            {extra||right ?
-              <div style={{paddingTop: title ? 8 : 24,...style}}>
-              <div>{extra}</div>
-              <div style={{float: 'right', right: 0, top: 0}}>
-                {sorter ?
-                  <Fragment>
-                    <Select
-                      style={{marginRight: 8}}
-                      defaultValue={current.sorterColumn}
-                      onSelect={value => onSorter({sorterColumn: value})}
-                    >
-                      {columns.map(_ => {
-                        return (
-                          <Option key={_.value} value={_.value}>{_.title}</Option>
-                        )
-                      })}
-                    </Select>
-                    <Select
-                      defaultValue={current.sorterType}
-                      onSelect={value => onSorter({sorterType: value})}
-                    >
-                      <Option value='ascend'>升序</Option>
-                      <Option value='descend'>降序</Option>
-                    </Select>
-                  </Fragment> : null
-                }
-                {right}
-              </div>
-                <div style={{clear:'both'}}></div>
-            </div> : null}
+            {extra || right ?
+              <div style={{paddingTop: title ? 8 : 24, ...style}}>
+                <div>{extra}</div>
+                <div style={{float: 'right', right: 0, top: 0}}>
+                  {sorter ?
+                    <Fragment>
+                      <Select
+                        style={{marginRight: 8}}
+                        defaultValue={current.sorterColumn}
+                        onSelect={value => onSorter({sorterColumn: value})}
+                      >
+                        {columns.map(_ => {
+                          return (
+                            <Option key={_.value} value={_.value}>{_.title}</Option>
+                          )
+                        })}
+                      </Select>
+                      <Select
+                        defaultValue={current.sorterType}
+                        onSelect={value => onSorter({sorterType: value})}
+                      >
+                        <Option value='ascend'>升序</Option>
+                        <Option value='descend'>降序</Option>
+                      </Select>
+                    </Fragment> : null
+                  }
+                  {right}
+                </div>
+                <div style={{clear: 'both'}}></div>
+              </div> : null}
             {tabs ? <Tabs activeKey={activeKey} onChange={key => onTabChange(key)} type='card'>
               {items.map(_ => {
                 const tabTitle = _.count ? (
@@ -123,9 +122,10 @@ export default class extends PureComponent {
                     />
                   </div>
                 ) : _.title;
-                return <TabPane tab={tabTitle} key={_.key} />
+                return <TabPane tab={tabTitle} key={_.key}/>
               })}
             </Tabs> : null}
+            {/*<div style={{height:1,borderBottom:'1px dashed #e8e8e8'}}></div>*/}
           </div> : null}
       </Fragment>
     )
@@ -133,10 +133,9 @@ export default class extends PureComponent {
 
   renderFooter() {
     const {footer, collapsed} = this.props;
-    const bodyWidth = `calc(100vw - ${collapsed ? 50 : Config.siderBaseWidth}px)`;
     return (
       <Fragment>
-        {footer&&footer.pagination.total>0 ?
+        {footer && footer.pagination.total > 0 ?
           <div className={styles.fxLayoutFooter}>
             <Pagination pagination={footer.pagination}/>
           </div> : null}
@@ -145,15 +144,11 @@ export default class extends PureComponent {
   }
 
   renderBody() {
-    const {footer, body, left} = this.props;
-    const {center, loading = false, padding = true, bg = true,render} = body;
+    const {footer, body, header} = this.props;
+    const {center, loading = false, padding = true, bg = true, render,style} = body;
     const topStageHeight = 9;
     const headerHeight = jQuery(`.fx-layout-header`).height();
     const footerHeight = footer ? 52 : 2;
-    const bodyHeight = `calc(100vh - ${40 + topStageHeight + footerHeight + headerHeight}px)`;
-    const wrapperHeight = `calc(100vh - ${40 + topStageHeight + footerHeight + headerHeight}px - 48px)`;
-    const bodyWidth = `100%`;
-    const loaderWidth = `calc(100% - ${this.props.left ? 200 : 0}px)`;
     return (
       <div
         className={classNames({
@@ -167,9 +162,10 @@ export default class extends PureComponent {
               className={classNames({
                 [styles.fxLayoutWrapBody]: true,
                 [styles.fxLayoutWrapBodyNoPadding]: !padding,
-                [styles.fxLayoutWrapBodyHasBg]: bg,
                 [styles.fxLayoutWrapCenter]: true,
-              })}>
+              })}
+             style={{paddingTop:!header?24:0,...style}}
+            >
               <div>
                 <Spin
                   spinning={!!loading}
@@ -180,19 +176,8 @@ export default class extends PureComponent {
             </div>
           ) : null
         }
-        {left ?
-          <div
-            className={classNames({
-              [styles.fxLayoutWrapLeft]: true,
-            })}
-            style={{
-              top: `${40 + topStageHeight + footerHeight + headerHeight - (!this.props.header.tabs ? 18 : 27)}px`
-            }}
-          >
-            {left}
-          </div> : null}
         {
-          render?render:null
+          render ? render : null
         }
         {footer ? this.renderFooter() : null}
       </div>
@@ -200,17 +185,20 @@ export default class extends PureComponent {
   }
 
   render() {
-    const {body, header, footer, left,} = this.props;
-    const stage = jQuery('#stage');
+    const {body, header,pageHeader,bg=false,} = this.props;
     return (
       <div
         className={classNames({
-        [styles.fxLayout]: true,
-        [styles.fxLayoutStageTop]: Config.webSetting.stageLayout === 'top' && stage.length > 0,
-      })}
+          [styles.fxLayout]: true,
+        })}
       >
-        {header ? this.renderHeader() : null}
-        {body ? this.renderBody() : null}
+        {pageHeader === undefined || !!pageHeader ? <PageHeader {...pageHeader} linkElement={Link}/> : null}
+        <div style={{padding: !bg?24:0}}>
+          <div style={{backgroundColor:!bg?'#fff':'#f0f2f5'}}>
+            {header ? this.renderHeader() : null}
+            {body ? this.renderBody() : null}
+          </div>
+        </div>
       </div>
     )
   }

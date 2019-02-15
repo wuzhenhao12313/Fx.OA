@@ -5,6 +5,8 @@ import {getExam} from './exam';
 import {getAssess} from "./assess";
 import { getShop } from './shop';
 import { getMateriel } from './materiel';
+import {getSupply} from "./supply";
+import {getFinance} from './finance';
 
 export const getRouter = ({app, dynamicWrapper}) => {
   return {
@@ -13,8 +15,10 @@ export const getRouter = ({app, dynamicWrapper}) => {
     ...getHr({app, dynamicWrapper}),
     ...getExam({app, dynamicWrapper}),
     ...getAssess({app, dynamicWrapper}),
-    ...getShop({ app, dynamicWrapper }),
-    ...getMateriel({ app, dynamicWrapper }),
+    ...getShop({app, dynamicWrapper}),
+    ...getMateriel({app, dynamicWrapper}),
+    ...getSupply({app, dynamicWrapper}),
+    ...getFinance({app, dynamicWrapper}),
   }
 }
 

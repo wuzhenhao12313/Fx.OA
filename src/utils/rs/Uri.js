@@ -24,7 +24,7 @@ Uri.Query = (key) => {
  * 匹配url
  * @param rule
  * @param pathname
- * @returns {Array|{index: number, input: string}}
+ * @returns {Array|{index.less: number, input: string}}
  */
 Uri.Match = (rule, pathname) => {
   const match = pathToRegExp(rule).exec(pathname);

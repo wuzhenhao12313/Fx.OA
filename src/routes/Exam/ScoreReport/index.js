@@ -154,8 +154,11 @@ export default class extends PureComponent {
 
   render() {
     const fxLayoutProps = {
-      header: {
+      pageHeader:{
         title: `成绩报表`,
+      },
+      header: {
+
         extra: this.renderSearchForm(),
       },
       body: {

@@ -769,6 +769,7 @@ export default class extends PureComponent {
     const {modal: {edit}} = this.state;
     const {[modelNameSpace]: {data: {list, total}, pageIndex}, pagination, loading} = this.props;
     const fxLayoutProps = {
+      pageHeader:false,
       header: {
         extra: this.renderSearchForm(),
       },

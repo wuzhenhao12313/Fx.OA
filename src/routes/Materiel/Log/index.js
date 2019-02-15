@@ -170,18 +170,8 @@ export default class extends React.Component {
     const {data: {total}, pageIndex} = this.props[modelNameSpace];
     const {recordStatus} = this.state;
     const fxLayoutProps = {
-      header: {
+      pageHeader:{
         title: `物料出入库记录`,
-        actions: [
-          {
-            button: {
-              icon: 'retweet',
-              text: '刷新',
-              type: 'primary',
-              onClick: e => this.getList()
-            }
-          }
-        ]
       },
       footer: {
         pagination: pagination({pageIndex, total}, this.getList),

@@ -1,5 +1,6 @@
 import React from 'react';
 import styles from './index.less';
+import {formatNumber} from "../../../utils/utils";
 
 export default class extends React.Component {
 
@@ -71,7 +72,7 @@ export default class extends React.Component {
     }
     const {member} = this.props;
     let all = 0;
-    member.filter(y => y.notInRate!==1).forEach(i => {
+    member.filter(y => y.notInRate !== 1).forEach(i => {
       const _score = this.getEmployeeTotalScore(i) || 0;
       all += _score * 1;
     });
@@ -84,30 +85,11 @@ export default class extends React.Component {
 
 
   render() {
-    const {year, month, depName, manager, member,recordConfig} = this.props;
-    let {userName, baseScore, targetScore, cooScore, gmScore, employeeScore} = manager[0];
-    const {
-      m_baseScoreRate,
-      m_targetScoreRate,
-      m_cooScoreRate,
-      m_gmScoreRate,
-      m_memberScoreRate,
-      e_allRoundScoreRate,
-      e_targetScoreRate,
-      e_cooScoreRate,
-      e_gmScoreRate,
-      e_workingScoreRate,
-    } = recordConfig;
-    baseScore = (baseScore || baseScore === 0) && !isNaN(baseScore) ? baseScore * 1 : null;
-    targetScore = (targetScore || targetScore === 0) && !isNaN(targetScore) ? targetScore * 1 : null;
-    cooScore = (cooScore || cooScore === 0) && !isNaN(cooScore) ? cooScore * 1 : null;
-    gmScore = (gmScore || gmScore === 0) && !isNaN(gmScore) ? gmScore * 1 : null;
-    employeeScore = (employeeScore || employeeScore === 0) && !isNaN(employeeScore) ? employeeScore * 1 : null;
+    const {year, month, depName, manager, member, recordConfig} = this.props;
     const printerItemStyle = {
       marginBottom: 100,
       height: `calc(100vh)`
     };
-
     const titleStyle = {
       border: '1px solid',
       textAlign: 'center',
@@ -119,7 +101,6 @@ export default class extends React.Component {
       webkitPrintColorAdjust: 'exact',
       padding: '5px 2px',
     };
-
     const tableStyle = {
       borderLeft: '1px solid',
       borderRight: '1px solid',
@@ -127,7 +108,6 @@ export default class extends React.Component {
       webkitPrintColorAdjust: 'exact',
       fontFamily: '微软雅黑',
     }
-
     const thCommon = {
       padding: '5px 4px',
       borderRight: '1px solid',
@@ -136,7 +116,6 @@ export default class extends React.Component {
       fontSize: 13,
       webkitPrintColorAdjust: 'exact',
     }
-
     const tdCommon = {
       padding: '5px 4px',
       borderRight: '1px solid',
@@ -145,7 +124,6 @@ export default class extends React.Component {
       fontSize: 13,
       webkitPrintColorAdjust: 'exact',
     }
-
     const autographStyle = {
       height: 200,
       width: 1113,
@@ -155,7 +133,6 @@ export default class extends React.Component {
       webkitPrintColorAdjust: 'exact',
       position: 'relative',
     }
-
     const memberAutoGraph = {
       position: 'relative',
       top: 20,
@@ -166,8 +143,6 @@ export default class extends React.Component {
       borderTop: '1px solid',
       webkitPrintColorAdjust: 'exact',
     }
-
-
     const managerAutoGraph = {
       position: 'absolute',
       top: 20,
@@ -179,10 +154,24 @@ export default class extends React.Component {
       borderTop: '1px solid',
       webkitPrintColorAdjust: 'exact',
     }
-
     const managerAutoGraphItem = {
       position: 'relative',
     }
+
+
+    const {
+      m_baseScoreRate,
+      m_targetScoreRate,
+      m_cooScoreRate,
+      m_gmScoreRate,
+      m_memberScoreRate,
+      e_allRoundScoreRate,
+      e_targetScoreRate,
+      e_cooScoreRate,
+      e_gmScoreRate,
+      e_workingScoreRate,
+      type,
+    } = recordConfig;
 
     return (
       <div style={printerItemStyle}>
@@ -197,7 +186,7 @@ export default class extends React.Component {
                   maxWidth: 100,
                   textAlign: 'left',
                 }
-              }>部门经理
+              } rowSpan={3}>部门经理
             </th>
             <th
               style={
@@ -240,25 +229,13 @@ export default class extends React.Component {
               style={
                 {
                   ...thCommon,
-                  width: 140,
-                  maxWidth: 140,
+                  width: 280,
+                  maxWidth: 280,
                   textAlign: 'center',
                 }
               }
-            >
-              运营总监考评
-            </th>
-            <th
-              style={
-                {
-                  ...thCommon,
-                  width: 140,
-                  maxWidth: 140,
-                  textAlign: 'center',
-                }
-              }
-            >
-              总经理考评
+              colSpan={2}
+            >总监考评
             </th>
             <th
               style={
@@ -272,57 +249,83 @@ export default class extends React.Component {
             >
               组员打分
             </th>
+            {type!==2?
+              <th style={{
+                ...thCommon,
+                textAlign: 'center',
+                width: 80,
+                maxWidth: 80,
+              }} rowSpan={3} >
+                职级工龄占比得分
+              </th>:null
+            }
             <th style={{
               ...thCommon,
               textAlign: 'center',
-              width: 233,
-              maxWidth: 233,
+              width: type===2?233:153,
+              maxWidth:  type===2?233:153,
             }} rowSpan={3} colSpan={2}>
               综合得分
             </th>
           </tr>
           <tr>
-            <td style={
-              {...tdCommon, textAlign: 'left', background: '#d9d9d9', fontSize: 20, fontWeight: 100}
-            } rowSpan={3}>
-              {userName}
-            </td>
+
             <td style={{...tdCommon, textAlign: 'left'}}>说明</td>
             <td style={{...tdCommon}}>该项为固定分</td>
             <td style={{...tdCommon}}>部门指标完成率*100</td>
-            <td style={{...tdCommon}}>领导日常考核</td>
-            <td style={{...tdCommon}}>领导日常考核</td>
+            <td style={{...tdCommon}}>工作态度</td>
+            <td style={{...tdCommon}}>日常考核</td>
             <td style={{...tdCommon}}>按平均分计算</td>
           </tr>
           <tr>
             <td style={{...tdCommon, textAlign: 'left'}}>占比</td>
-            <td style={{...tdCommon}}>{m_baseScoreRate*100+"%"}</td>
-            <td style={{...tdCommon}}>{`${m_targetScoreRate*100}%`}</td>
-            <td style={{...tdCommon}}>{`${m_cooScoreRate*100}%`}</td>
-            <td style={{...tdCommon}}>{`${m_gmScoreRate*100}%`}</td>
-            <td style={{...tdCommon}}>{`${m_memberScoreRate*100}%`}</td>
+            <td style={{...tdCommon}}>{m_baseScoreRate * 100 + "%"}</td>
+            <td style={{...tdCommon}}>{`${m_targetScoreRate * 100}%`}</td>
+            <td style={{...tdCommon}}>{`${m_cooScoreRate * 100}%`}</td>
+            <td style={{...tdCommon}}>{`${m_gmScoreRate * 100}%`}</td>
+            <td style={{...tdCommon}}>{`${m_memberScoreRate * 100}%`}</td>
           </tr>
-          <tr>
-            <td style={{...tdCommon, textAlign: 'left'}}>打分</td>
-            <td style={{
-              ...tdCommon,
-              background: '#d9d9d9'
-            }}>{baseScore || baseScore === 0 ? baseScore.toFixed(2) : null}</td>
-            <td style={{
-              ...tdCommon,
-              background: '#d9d9d9'
-            }}>{targetScore || targetScore === 0 ? targetScore.toFixed(2) : null}</td>
-            <td style={{
-              ...tdCommon,
-              background: '#d9d9d9'
-            }}>{cooScore || cooScore === 0 ? cooScore.toFixed(2) : null}</td>
-            <td style={{...tdCommon, background: '#d9d9d9'}}>{gmScore || gmScore === 0 ? gmScore.toFixed(2) : null}</td>
-            <td style={{
-              ...tdCommon,
-              background: '#d9d9d9'
-            }}>{employeeScore || employeeScore === 0 ? employeeScore.toFixed(2) : null}</td>
-            <td style={{...tdCommon, background: '#d9d9d9'}} colSpan={2}>{this.getManagerTotalScore(manager[0])}</td>
-          </tr>
+          {manager.map(x => {
+            let {userName, baseScore, targetScore, cooScore, gmScore, employeeScore,extraRate} = x;
+            baseScore = (baseScore || baseScore === 0) && !isNaN(baseScore) ? baseScore * 1 : null;
+            targetScore = (targetScore || targetScore === 0) && !isNaN(targetScore) ? targetScore * 1 : null;
+            cooScore = (cooScore || cooScore === 0) && !isNaN(cooScore) ? cooScore * 1 : null;
+            gmScore = (gmScore || gmScore === 0) && !isNaN(gmScore) ? gmScore * 1 : null;
+            employeeScore = (employeeScore || employeeScore === 0) && !isNaN(employeeScore) ? employeeScore * 1 : null;
+            return (
+              <tr>
+                <td style={{...tdCommon, textAlign: 'left', background: '#d9d9d9'}}>{userName}</td>
+                <td style={{...tdCommon, textAlign: 'left'}}>打分</td>
+                <td style={{
+                  ...tdCommon,
+                  background: '#d9d9d9'
+                }}>{baseScore || baseScore === 0 ? baseScore.toFixed(2) : null}</td>
+                <td style={{
+                  ...tdCommon,
+                  background: '#d9d9d9'
+                }}>{targetScore || targetScore === 0 ? targetScore.toFixed(2) : null}</td>
+                <td style={{
+                  ...tdCommon,
+                  background: '#d9d9d9'
+                }}>{cooScore || cooScore === 0 ? cooScore.toFixed(2) : null}</td>
+                <td style={{
+                  ...tdCommon,
+                  background: '#d9d9d9'
+                }}>{gmScore || gmScore === 0 ? gmScore.toFixed(2) : null}</td>
+                <td style={{
+                  ...tdCommon,
+                  background: '#d9d9d9'
+                }}>{employeeScore || employeeScore === 0 ? employeeScore.toFixed(2) : null}</td>
+                {type!==2?
+                  <td style={{
+                    ...tdCommon,
+                    background: '#d9d9d9'
+                  }}>{`${formatNumber(extraRate*100,2)}%`}</td>:null
+                }
+                <td style={{...tdCommon, background: '#d9d9d9'}} colSpan={2}>{this.getManagerTotalScore(x)}</td>
+              </tr>
+            )
+          })}
           <tr>
             <td style={
               {
@@ -345,7 +348,7 @@ export default class extends React.Component {
               项目
             </td>
             <td style={{...tdCommon, fontWeight: 'bold', borderTop: '2px solid',}}>
-              综合素质
+              {type === 1 ? '指标完成率' : '工龄系数'}
             </td>
             <td
               style={
@@ -355,36 +358,20 @@ export default class extends React.Component {
                   borderTop: '2px solid',
                 }
               }
+              colSpan={type === 2 ? 1 : 4}
             >
-              指标完成
+              {type === 2 ? '综合素质' : '经理考评'}
             </td>
-            <td
+            {type === 2 ? <td
               style={
                 {
                   ...tdCommon, fontWeight: 'bold', borderTop: '2px solid',
                 }
               }
+              colSpan={3}
             >
-              运营总监考评
-            </td>
-            <td
-              style={
-                {
-                  ...tdCommon, fontWeight: 'bold', borderTop: '2px solid',
-                }
-              }
-            >
-              部门经理考评
-            </td>
-            <td
-              style={
-                {
-                  ...tdCommon, fontWeight: 'bold', borderTop: '2px solid',
-                }
-              }
-            >
-              工作考评
-            </td>
+              经理考评
+            </td> : null}
             <td style={{
               ...tdCommon,
               fontWeight: 'bold',
@@ -403,19 +390,19 @@ export default class extends React.Component {
           </tr>
           <tr>
             <td style={{...tdCommon, textAlign: 'left'}}>说明</td>
-            <td style={{...tdCommon}}>工作经验&能力</td>
-            <td style={{...tdCommon}}>部门指标完成率*100</td>
-            <td style={{...tdCommon}}>领导日常考核</td>
-            <td style={{...tdCommon}}>领导日常考核</td>
-            <td style={{...tdCommon}}>工作质量效率</td>
+            <td style={{...tdCommon}}>{type===1?'店铺指标完成率':'职级工龄得分'}</td>
+            <td style={{...tdCommon}}>{type===2?'工作经验&能力':'工作态度'}</td>
+            <td style={{...tdCommon}}>{type===2?'绩效目标得分':'执行力'}</td>
+            <td style={{...tdCommon}}>{type===2?'工作质量&效率':'工作效率'}</td>
+            <td style={{...tdCommon}}>{type===2?'工作质量':'工作态度'}</td>
           </tr>
           <tr>
             <td style={{...tdCommon, textAlign: 'left'}}>占比</td>
-            <td style={{...tdCommon}}>{`${e_allRoundScoreRate*100}%`}</td>
-            <td style={{...tdCommon}}>{`${e_targetScoreRate*100}%`}</td>
-            <td style={{...tdCommon}}>{`${e_cooScoreRate*100}%`}</td>
-            <td style={{...tdCommon}}>{`${e_gmScoreRate*100}%`}</td>
-            <td style={{...tdCommon}}>{`${e_workingScoreRate*100}%`}</td>
+            <td style={{...tdCommon}}>{`${e_allRoundScoreRate * 100}%`}</td>
+            <td style={{...tdCommon}}>{`${e_targetScoreRate * 100}%`}</td>
+            <td style={{...tdCommon}}>{`${e_cooScoreRate * 100}%`}</td>
+            <td style={{...tdCommon}}>{`${e_gmScoreRate * 100}%`}</td>
+            <td style={{...tdCommon}}>{`${e_workingScoreRate * 100}%`}</td>
           </tr>
           {this.state.currentMember.map(x => {
             let {userName, allRoundScore, targetScore, cooScore, gmScore, workingScore, customExtractRate,} = x;

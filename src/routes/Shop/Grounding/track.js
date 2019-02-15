@@ -71,6 +71,7 @@ export default class  extends PureComponent {
       currentPlanItem: {},
       currentAsinCode: null,
       currentCodeList: [],
+      currentShopType:null,
     },
     cycle: {
       startDate: moment().startOf('week').format('YYYY-MM-DD'),
@@ -341,14 +342,12 @@ export default class  extends PureComponent {
   }
 
   openAsinDrawer = (planItemID, currentPlanItem) => {
-    const codeList = this.getCodeList(currentPlanItem.shopType);
     this.setState({
       asinDrawerProps: {
         visible: true,
         currentPlanItemID: planItemID,
         currentPlanItem,
-        currentCodeList: codeList,
-        currentAsinCode: codeList[0].code,
+        currentShopType:currentPlanItem.shopType,
       }
     });
     this.getAsinList(planItemID);
@@ -374,6 +373,11 @@ export default class  extends PureComponent {
         this.getList();
       }
     });
+  }
+
+  getShopTypeAsinCount=(shopType)=>{
+    const {asinList} = this.props[modelNameSpace];
+    return asinList.filter(x=>x.shopType===shopType).length;
   }
 
   renderDetail() {
@@ -435,6 +439,7 @@ export default class  extends PureComponent {
       <Drawer
         title='计划详情列表'
         width={1000}
+        style={{width:1000}}
         placement="right"
         closable={false}
         onClose={e => this.setState({detailDrawerProps: {visible: false}})}
@@ -469,7 +474,7 @@ export default class  extends PureComponent {
             bordered
           />
         </div>
-
+        {this.state.asinDrawerProps.visible ? this.renderAsin() : null}
       </Drawer>
     )
   }
@@ -557,8 +562,9 @@ export default class  extends PureComponent {
   }
 
   renderAsin() {
-    const {visible, currentPlanItemID, currentCodeList, currentAsinCode} = this.state.asinDrawerProps;
+    const {visible, currentPlanItemID, currentCodeList, currentShopType} = this.state.asinDrawerProps;
     const {asinList} = this.props[modelNameSpace];
+    const codeList = this.getCodeList(currentShopType);
     const gridStyle = {
       width: '33.33%',
       textAlign: 'center',
@@ -568,6 +574,7 @@ export default class  extends PureComponent {
       <Drawer
         title='ASIN列表'
         width={800}
+        style={{width:800}}
         placement="right"
         closable={false}
         onClose={e => this.setState({asinDrawerProps: {visible: false}})}
@@ -588,66 +595,82 @@ export default class  extends PureComponent {
         </div>
         {this.renderAsinHeader()}
         <div>
-          {
-            this.state.asinModel === 'table' ?
-              <Collapse accordion>
-                {currentCodeList.map(code => {
-                  return (
-                    <Collapse.Panel
-                      header={<div>{code.name} <Badge count={asinList.filter(_ => _.code === code.code).length}/></div>}
-                      key={code.code}>
-                      {
-                        asinList.filter(_ => _.code === code.code).map(x => {
-                          return (
-                            <Card.Grid style={gridStyle} className={style.asinItem}>
-                              <div><span>ASIN：</span> <a className={style.asin} href={`https://${code.url}${x.ASIN}`}
-                                                         target='_blank'>{x.P_ASIN ? x.P_ASIN : x.ASIN}</a></div>
-                              <div><span>创建时间：</span>
-                                <span>{Format.Date.Format(x.createDate, 'YYYY-MM-DD HH:mm')}</span></div>
-                            </Card.Grid>)
-                        })
-                      }
-                      <div style={{clear: 'both'}}></div>
-                    </Collapse.Panel>
-                  )
-                })
-                }
-              </Collapse>
-              :
-              <div>
-                <Tabs activeKey={currentAsinCode} onChange={currentAsinCode => {
-                  currentAsinCode = currentAsinCode === 'null' ? null : currentAsinCode;
-                  this.setState({asinDrawerProps: {...this.state.asinDrawerProps, currentAsinCode}})
-                }}>
-                  {currentCodeList.map(code => {
-                    return (<TabPane tab={code.name} key={code.code}/>)
-                  })}
-                </Tabs>
-                <List
-                  itemLayout="horizontal"
-                  dataSource={asinList.filter(x => x.code === currentAsinCode)}
-                  renderItem={item => (
-                    <List.Item>
-                      <List.Item.Meta
-                        avatar={<Avatar icon='amazon'/>}
-                        title={
-                          <a
-                            className={style.asin}
-                            href={`https://${currentCodeList.filter(x => x.code === currentAsinCode)[0].url}${item.ASIN}`}
-                            target='_blank'>
-                            {item.P_ASIN ? item.P_ASIN : item.ASIN}
-                          </a>
-                        }
-                        description={
-                          <div><span>创建时间：</span> <span>{Format.Date.Format(item.createDate, 'YYYY-MM-DD HH:mm')}</span>
-                          </div>
-                        }
-                      />
-                    </List.Item>
-                  )}
-                />
-              </div>
-          }
+          <Tabs type='card'
+                activeKey={currentShopType}
+                onChange={currentShopType => this.setState({
+                  asinDrawerProps: {
+                    ...this.state.asinDrawerProps,
+                    currentShopType
+                  }
+                })}
+          >
+            <TabPane key='amazon' tab={<div>amazon <Badge count={this.getShopTypeAsinCount('amazon')}/></div>}/>
+            <TabPane key='ebay' tab={<div>ebay <Badge count={this.getShopTypeAsinCount('ebay')}/></div>}/>
+            <TabPane key='cdiscount' tab={<div>cdiscount <Badge count={this.getShopTypeAsinCount('cdiscount')}/></div>}/>
+            <TabPane key='wish' tab={<div>wish <Badge count={this.getShopTypeAsinCount('wish')}/></div>}/>
+            <TabPane key='shopee' tab={<div>shopee <Badge count={this.getShopTypeAsinCount('shopee')}/></div>}/>
+          </Tabs>
+          <Collapse accordion>
+            {codeList.map(code => {
+              return (
+                <Collapse.Panel
+                  header={<div>{code.name} <Badge count={asinList.filter(_ => _.code === code.code).length}/></div>}
+                  key={code.code}>
+                  {
+                    asinList.filter(_ => _.code === code.code).map(x => {
+                      return (
+                        <Card.Grid style={gridStyle} className={style.asinItem}>
+                          <div><span>ASIN：</span> <a className={style.asin} href={`https://${code.url}${x.ASIN}`}
+                                                     target='_blank'>{x.P_ASIN ? x.P_ASIN : x.ASIN}</a></div>
+                          <div><span>创建时间：</span>
+                            <span>{Format.Date.Format(x.createDate, 'YYYY-MM-DD HH:mm')}</span></div>
+                        </Card.Grid>)
+                    })
+                  }
+                  <div style={{clear: 'both'}}></div>
+                </Collapse.Panel>
+              )
+            })
+            }
+          </Collapse>
+          {/*{*/}
+            {/*this.state.asinModel === 'table' ?*/}
+            {/**/}
+              {/*:*/}
+              {/*<div>*/}
+                {/*<Tabs activeKey={currentAsinCode} onChange={currentAsinCode => {*/}
+                  {/*currentAsinCode = currentAsinCode === 'null' ? null : currentAsinCode;*/}
+                  {/*this.setState({asinDrawerProps: {...this.state.asinDrawerProps, currentAsinCode}})*/}
+                {/*}}>*/}
+                  {/*{currentCodeList.map(code => {*/}
+                    {/*return (<TabPane tab={code.name} key={code.code}/>)*/}
+                  {/*})}*/}
+                {/*</Tabs>*/}
+                {/*<List*/}
+                  {/*itemLayout="horizontal"*/}
+                  {/*dataSource={asinList.filter(x => x.code === currentAsinCode)}*/}
+                  {/*renderItem={item => (*/}
+                    {/*<List.Item>*/}
+                      {/*<List.Item.Meta*/}
+                        {/*avatar={<Avatar icon='amazon'/>}*/}
+                        {/*title={*/}
+                          {/*<a*/}
+                            {/*className={style.asin}*/}
+                            {/*href={`https://${currentCodeList.filter(x => x.code === currentAsinCode)[0].url}${item.ASIN}`}*/}
+                            {/*target='_blank'>*/}
+                            {/*{item.P_ASIN ? item.P_ASIN : item.ASIN}*/}
+                          {/*</a>*/}
+                        {/*}*/}
+                        {/*description={*/}
+                          {/*<div><span>创建时间：</span> <span>{Format.Date.Format(item.createDate, 'YYYY-MM-DD HH:mm')}</span>*/}
+                          {/*</div>*/}
+                        {/*}*/}
+                      {/*/>*/}
+                    {/*</List.Item>*/}
+                  {/*)}*/}
+                {/*/>*/}
+              {/*</div>*/}
+          {/*}*/}
         </div>
       </Drawer>
     )
@@ -662,7 +685,7 @@ export default class  extends PureComponent {
       endCount += x.endCount || 0;
     });
     return (
-      <Card style={{marginBottom: 24, marginTop: 16}}>
+      <Card style={{marginBottom: 24}}>
         <Row>
           <Col span={6}>
             <div className='headerInfo'>
@@ -842,7 +865,7 @@ export default class  extends PureComponent {
             <span style={{fontSize: 20}}>铺货计划跟踪</span>
             <Select
               value={`${cycle.startDate},${cycle.endDate}`}
-              style={{width: 180, marginLeft: 20}}
+              style={{width: 210, marginLeft: 20}}
               onChange={value => this.setState(
                 {
                   cycle: {startDate: value.toList()[0], endDate: value.toList()[1]}
@@ -855,7 +878,7 @@ export default class  extends PureComponent {
             </Select>
           </div>
         ),
-        titleStyle: {paddingTop: 8},
+        titleStyle: {padding:'24px 0px'},
         type: 'custom',
         actions,
       },
@@ -867,12 +890,9 @@ export default class  extends PureComponent {
       <div>
         {this.state.tag === 'asin' ?
           <Asin role='admin'/> :
-          <div style={{paddingTop: 16}}>
-            <div>
-              <FxLayout {...fxLayoutProps} />
-              {this.state.detailDrawerProps.visible ? this.renderDetail() : null}
-              {this.state.asinDrawerProps.visible ? this.renderAsin() : null}
-            </div>
+          <div>
+            <FxLayout {...fxLayoutProps} />
+            {this.state.detailDrawerProps.visible ? this.renderDetail() : null}
           </div>
         }
       </div>

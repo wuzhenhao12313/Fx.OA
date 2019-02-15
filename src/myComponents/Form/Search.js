@@ -54,6 +54,16 @@ export default class extends React.Component {
               {advExpand ? <span className={styles.sanjiao}></span> : null}
             </FormItem> : null
           }
+          {!advSearch&&!!onSearch?
+            <FormItem key={idx + 2}>
+              <Button
+                type='primary'
+                onClick={e => this.search()}>
+                <Icon type={'search'}/>
+                搜索
+              </Button>
+            </FormItem> : null
+          }
           {searchTags ?
             <FormItem key={idx + 2}>
               <Popover placement="bottomLeft" title={null} content={this.renderTagsBar()} trigger="click">

@@ -63,24 +63,11 @@ export default class extends React.Component {
       {
         title: '申请编号',
         dataIndex: 'materielNo',
-        width: 250,
-      },
-      {
-        title: '申请人',
-        dataIndex: 'applyUserName',
-        width: 100,
-      },
-      {
-        title: '申请时间',
-        dataIndex: 'applyDate',
-        width: 150,
-        render: (text) => {
-          return formatDate(text, 'YYYY-MM-DD HH:mm')
-        }
       },
       {
         title: '物料列表',
         dataIndex: 'materielData',
+        width:400,
         render: (text) => {
           const array = text ? text.toObject() : [];
           return (
@@ -99,10 +86,21 @@ export default class extends React.Component {
         }
       },
       {
+        title: '申请人',
+        dataIndex: 'applyUserName',
+      },
+      {
+        title: '申请时间',
+        dataIndex: 'applyDate',
+        render: (text) => {
+          return formatDate(text, 'YYYY-MM-DD HH:mm')
+        }
+      },
+      {
         title: '操作',
         dataIndex: 'op',
-        width: 180,
         align: 'center',
+        width:180,
         render: (text, row) => {
           if (row.status === 0) {
             return (

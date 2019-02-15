@@ -445,7 +445,12 @@ export default class extends PureComponent {
     const {columns} = this.state;
     return (
       <div>
-        <Tabs activeKey={this.state.activeKey} onChange={activeKey => this.setState({activeKey}, e => this.getList())} type='card'>
+        <Button
+          type='primary'
+          onClick={e => this.toggleModal({visible: true, isAdd: true, content: null, title: '添加职位等级'})}
+          style={{marginBottom: 12}} icon='plus'>添加职位等级</Button>
+        <Tabs activeKey={this.state.activeKey} onChange={activeKey => this.setState({activeKey}, e => this.getList())}
+              type='card'>
           <TabPane key='business' tab='业务岗'/>
           <TabPane key='manage' tab='高管'/>
           <TabPane key='software-engineer' tab='软件工程师'/>
@@ -466,17 +471,16 @@ export default class extends PureComponent {
   render() {
     const {modal: {visible}, salaryModal} = this.state;
     const {loading, [modelNameSpace]: {current}, model} = this.props;
-
     const fxLayoutProps = {
+      pageHeader: false,
       header: {
-        title: '职级列表',
         actions: [
           {
             button: {
               text: '添加职位等级',
               type: 'primary',
               icon: 'plus',
-              onClick:() => this.toggleModal({visible: true, isAdd: true, content: null, title: '添加职位等级'})
+              onClick: () => this.toggleModal({visible: true, isAdd: true, content: null, title: '添加职位等级'})
             }
           },
           {
@@ -485,12 +489,13 @@ export default class extends PureComponent {
               icon: 'retweet',
               type: 'primary',
               ghost: true,
-              onClick:() => this.getList()
+              onClick: () => this.getList()
             }
           }
         ],
       },
       body: {
+        style: {paddingTop: 24},
         loading: loading.effects[`${modelNameSpace}/get`],
         center: this.renderTable(),
       }

@@ -39,11 +39,7 @@ import ShopSelect from '../../../myComponents/Select/Shop';
 import StandardRangePicker from '../../../myComponents/Date/StandardRangePicker';
 import StandardDatePicker from '../../../myComponents/Date/StandardDatePicker';
 import TableActionBar from '../../../myComponents/Table/TableActionBar';
-import ProductInfo from '../../../myComponents/Fx/ProductInfo';
-import Color from '../../../utils/rs/Color';
-import Config from "../../../utils/rs/Config";
-import style from './index.less';
-import Uri from "../../../utils/rs/Uri";
+import LoadingService from  '../../../utils/rs/LoadingService';
 import {String} from "../../../utils/rs/Util";
 
 
@@ -126,8 +122,8 @@ export default class extends PureComponent {
   editAsin = () => {
     const {model} = this.props;
     const {getFieldsValue} = this.ref.editForm.props.form;
-    const {pAsin, asin, shopID,code} = getFieldsValue();
-    const {currentAsin:{planID,planItemID,id}} = this.state.editModal;
+    const {pAsin, asin, shopID, code} = getFieldsValue();
+    const {currentAsin: {planID, planItemID, id}} = this.state.editModal;
     if (String.IsNullOrEmpty(asin)) {
       message.warning("ASIN不能为空");
       return;
@@ -383,6 +379,19 @@ export default class extends PureComponent {
     })
   }
 
+  downloadAsin = (asinID) => {
+    const {model} = this.props;
+    LoadingService.Start();
+    model.call('downloadAsinByID', {
+      asinID,
+    }).then(success => {
+      if (success) {
+        this.getList();
+      }
+      LoadingService.Done();
+    });
+  }
+
   renderEditModal() {
     const {visible, isAdd, currentAsin} = this.state.editModal;
     const item = [
@@ -417,18 +426,18 @@ export default class extends PureComponent {
         }
       },
       {
-         key:'code',
-         label:'站点',
-        initialValue:isAdd?undefined:currentAsin.code,
-        render:()=>{
+        key: 'code',
+        label: '站点',
+        initialValue: isAdd ? undefined : currentAsin.code,
+        render: () => {
           const codeList = this.getCodeList(currentAsin.shopType);
-           return(
-             <AutoSelect >
-               {codeList.map((x,idx)=>{
-                 return(<Option key={idx} value={x.code}>{x.name}</Option>)
-               })}
-             </AutoSelect>
-           )
+          return (
+            <AutoSelect>
+              {codeList.map((x, idx) => {
+                return (<Option key={idx} value={x.code}>{x.name}</Option>)
+              })}
+            </AutoSelect>
+          )
         }
       },
     ];
@@ -509,7 +518,7 @@ export default class extends PureComponent {
       {
         title: '状态',
         dataIndex: 'isRun',
-        render: (text,row) => {
+        render: (text, row) => {
           let obj = {};
           switch (text) {
             case 0:
@@ -523,7 +532,7 @@ export default class extends PureComponent {
           return (
             <div>
               <p><Badge text={obj.text} status={obj.status}/></p>
-              <p>{row.isUnder==1? <Badge text='已下架' status='error'/>:null}</p>
+              <p>{row.isUnder == 1 ? <Badge text='已下架' status='error'/> : null}</p>
             </div>
           )
         }
@@ -534,14 +543,14 @@ export default class extends PureComponent {
         align: 'right',
         fixed: 'right',
         render: (text, row, index) => {
-          const {role}=this.props;
+          const {role} = this.props;
           const action = [
             {
               label: '编辑',
               submit: () => {
                 this.setState({
-                  editModal:{
-                    visible:true,
+                  editModal: {
+                    visible: true,
                     isAdd: false,
                     currentAsin: row,
                     index,
@@ -551,6 +560,12 @@ export default class extends PureComponent {
             }
           ];
           const more = [
+            {
+              label: '下载',
+              submit: () => {
+                this.downloadAsin(row.id);
+              }
+            },
             {
               label: row.isUnder === 1 ? "重新上架" : '下架',
               submit: () => {
@@ -587,6 +602,7 @@ export default class extends PureComponent {
     const {pagination, role} = this.props;
     const {pageIndex, data: {total}} = this.props[modelNameSpace];
     const fxLayoutProps = {
+      pageHeader: false,
       header: {
         extra: this.renderSearchForm(),
       },
@@ -602,7 +618,7 @@ export default class extends PureComponent {
         <FxLayout
           {...fxLayoutProps}
         />
-        {this.state.editModal.visible?this.renderEditModal():null}
+        {this.state.editModal.visible ? this.renderEditModal() : null}
       </div>
     )
   }

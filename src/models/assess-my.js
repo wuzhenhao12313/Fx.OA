@@ -6,6 +6,7 @@ export default createModel({
   initialState: {
     isDepManager: false,
     list: [],
+    type:-1,
   },
   effects: {
     * getMyAssess({payload}, {call, put}) {
@@ -22,7 +23,7 @@ export default createModel({
     },
     * updateManager({payload}, {call, put}) {
       const res = yield call(updateManager, payload);
-      return Promise.resolve({success: res.success});
+      return Promise.resolve(res.success);
     },
     * updateEmployee({payload}, {call, put}) {
       const res = yield call(updateEmployee, payload);

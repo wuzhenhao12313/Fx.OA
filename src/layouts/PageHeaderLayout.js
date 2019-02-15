@@ -19,10 +19,10 @@ export default class extends React.Component {
     return (
       <div className={wrapperClassName}>
         {top}
-        {showHeader ? <PageHeader {...restProps} linkElement={Link}/> : null}
+        <PageHeader {...restProps} linkElement={Link}/>
         {children ? <div id="content-div" className={classNames({
             [styles.content]: true,
-            [styles.contentHeight]: !showHeader,
+
             [styles.bg]: !!bg
           }
         )}>

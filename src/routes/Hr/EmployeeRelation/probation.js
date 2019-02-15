@@ -58,6 +58,10 @@ export default class extends PureComponent {
 
   renderProbationModal() {
     const {visible,date,row,} = this.state.probationModalProps;
+    const userPosition = [];
+    row.positionList.forEach(i => {
+      userPosition.push({label: i.positionName, value: i.position.toString()});
+    });
     const item = [
       {
         label: '预计转正日期',
@@ -75,6 +79,14 @@ export default class extends PureComponent {
         ],
         render: () => {
           return (<StandardDatePicker style={{ width: '100%' }} />)
+        }
+      },
+      {
+        label:'职位',
+        key:'userPositionList',
+        initialValue:userPosition,
+        render:()=>{
+          return(<PositionSelect />)
         }
       },
       {
@@ -166,12 +178,14 @@ export default class extends PureComponent {
     const {currentUserID,}=this.state.probationModalProps;
     const {getFieldsValue}=this.ref.probationForm.props.form;
     const {model}=this.props;
-    let {probationDate,positionLevel}=getFieldsValue();
+    let {probationDate,positionLevel,userPositionList}=getFieldsValue();
     probationDate=probationDate.format('YYYY-MM-DD');
+    userPositionList=userPositionList.map(x=>x.value.toInt());
     model.call('probationUser',{
       userID:currentUserID,
       probationDate,
       positionLevel,
+      userPositionList,
     }).then(success => {
       if (success) {
         this.setState({
@@ -429,9 +443,10 @@ export default class extends PureComponent {
     const {pagination} = this.props;
     const {pageIndex, data: {total}} = this.props[modelNameSpace];
     const fxLayoutProps = {
+      pageHeader:false,
       header: {
         extra: this.renderSearchForm(),
-        style:{paddingTop:8},
+        style:{paddingTop:24},
       },
       body: {
         center: this.renderTable(),

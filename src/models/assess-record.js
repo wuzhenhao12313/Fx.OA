@@ -14,6 +14,7 @@ import {
   updateMember,
   removeAssessEmployee,
   addAssessEmployee,
+  backAssess,
 } from '../services/assess';
 
 export default createModel({
@@ -99,6 +100,10 @@ export default createModel({
     },
     * completeAssess({payload}, {call, put}) {
       const res = yield call(completeAssess, payload);
+      return Promise.resolve({success: res.success});
+    },
+    * backAssess({payload}, {call, put}) {
+      const res = yield call(backAssess, payload);
       return Promise.resolve({success: res.success});
     },
     * updateManager({payload}, {call, put}) {

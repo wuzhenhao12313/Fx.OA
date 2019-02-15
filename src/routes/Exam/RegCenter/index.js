@@ -285,7 +285,7 @@ export default class extends PureComponent {
 
   render() {
     const fxLayoutProps = {
-      header: {
+      pageHeader: {
         title: '报考中心'
       },
       body: {

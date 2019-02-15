@@ -424,8 +424,10 @@ export default class extends PureComponent {
 
 
     const fxLayoutProps = {
-      header: {
+      pagerHeader:{
         title: `考试记录汇总`,
+      },
+      header: {
         extra: this.renderSearchForm(),
         // tabs: {
         //   items: [

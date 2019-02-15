@@ -88,7 +88,7 @@ export default class extends React.Component {
   }
 
   render() {
-    const {type, max = 5, onChange, defaultFileList, ...restProps} = this.props;
+    const {type, max = 5, onChange, defaultFileList,disabled, ...restProps} = this.props;
     const {previewVisible, previewImage, fileList} = this.state;
     const uploadButton = (
       <div>
@@ -109,7 +109,7 @@ export default class extends React.Component {
           onChange={this.handleChange}
           {...restProps}
         >
-          {uploadButton}
+          {fileList.length >= max ? null : uploadButton}
         </Upload>
         <Modal visible={previewVisible} footer={null} onCancel={this.handleCancel}>
           <img alt="example" style={{width: '100%'}} src={previewImage}/>

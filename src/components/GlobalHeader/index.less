@@ -5,16 +5,17 @@
 .header {
   width: ~'calc(100vw - @{sider-base-width})';
   left: @sider-base-width;
-  height: 50px;
+  height: 64px;
+  line-height: 80px;
   top: 0;
   position: fixed;
-  z-index: 999;
+  z-index: 20;
   padding: 0px;
   background-color: #fff;
-  color: #fff;
+  box-shadow: 0 1px 4px rgba(0, 21, 41, 0.08);
   &.headerCollapsed {
-    width: ~'calc(100vw - 50px)';
-    left: 50px;
+    width: ~'calc(100vw - 80px)';
+    left: 80px;
   }
 }
 
@@ -57,7 +58,6 @@ i.trigger {
   padding: 0 18px;
   position: relative;
   top: -5px;
-  color:#fff;
   &:hover {
     background: @primary-1;
   }
@@ -66,6 +66,7 @@ i.trigger {
 .right {
   float: right;
   height: 100%;
+  margin-right: 10px;
   .action {
     cursor: pointer;
     padding: 0 12px;
@@ -100,7 +101,6 @@ i.trigger {
       position: relative;
       top: -8px;
       margin-left: 5px;
-      color:#fff
     }
   }
 }

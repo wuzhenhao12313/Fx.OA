@@ -37,6 +37,7 @@ export default class extends React.Component {
       <Select
         showSearch
         allowClear
+        showArrow
         optionFilterProp="children"
         filterOption={(input, option) => this.searchValues(input, option)}
         {...this.props}

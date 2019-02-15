@@ -40,6 +40,7 @@ export default class extends React.Component {
       <Select
         showSearch
         allowClear
+        showArrow
         placeholder='请选择店铺'
         optionFilterProp="children"
         filterOption={(input, option) => this.searchValues(input, option)}

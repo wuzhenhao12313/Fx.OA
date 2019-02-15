@@ -455,12 +455,12 @@ export default class extends PureComponent {
   }
 
   renderInfo() {
-    const {[modelNameSpace]: {employee, positionList = [], salary}, model} = this.props;
+    const {[modelNameSpace]: {employee, positionList = [],salary}, model} = this.props;
     const {
       jobNumber, empName, workPhotoUrl, entryDate, correctionDate, depName, sex,
       birthday, birthdayType, companyName, workStatus, mobile, email, leaveDate, positionLevel, salarySubsidy, payday,
       graduationSchool, graduationDate, major, education, foreignLanguages, computerLevel, hobby, specialty, maritalStatus,
-      originPlace, homeAddress, residentialAddress, ID, bankCard, openingBank, recruitment, emergencyContact, emergencyContactPhone,
+      originPlace, homeAddress, residentialAddress, ID, bankCard, openingBank, recruitment, emergencyContact, emergencyContactPhone
     }
       = employee;
     return (
