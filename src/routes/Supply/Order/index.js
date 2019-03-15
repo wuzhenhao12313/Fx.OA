@@ -1,47 +1,29 @@
 import React, {PureComponent} from 'react';
 import {connect} from 'dva';
-import moment from 'moment';
 import {
-  message,
   Button,
-  Input,
   Badge,
   Modal,
-  Drawer,
-  Icon,
   Select,
   Tabs,
-  Row,
-  Col,
   Steps,
   Form,
-  Card,
   Breadcrumb,
   Alert,
 } from 'antd';
 import Component from '../../../utils/rs/Component';
 import FxLayout from '../../../myComponents/Layout/';
-import cloneDeep from 'lodash/cloneDeep';
 import Format from '../../../utils/rs/Format';
 import StandardTable from '../../../myComponents/Table/Standard';
 import StandardModal from '../../../myComponents/Modal/Standard';
 import SearchForm from '../../../myComponents/Form/Search';
-import InLineForm from '../../../myComponents/Form/InLine';
-import AutoSelect from '../../../myComponents/Fx/AutoSelect';
-import {fetchApiSync, fetchServiceSync} from "../../../utils/rs/Fetch";
-import EditModal from '../../../myComponents/Fx/EditModal';
 import {formatDate, formatNumber} from '../../../utils/utils';
 import TableActionBar from '../../../myComponents/Table/TableActionBar';
-import FilesUploader from '../../../myComponents/Fx/FilesUploader';
-import LoadingService from '../../../utils/rs/LoadingService';
 import ProductInfo from '../../../myComponents/Fx/ProductInfo';
-import PicturesUploader from '../../../myComponents/Fx/PicturesUploader';
-import Config from "../../../utils/rs/Config";
 import Uri from '../../../utils/rs/Uri';
-import style from './index.less';
-import StandardDatePicker from "../../../myComponents/Date/StandardDatePicker";
 import StandardRangePicker from "../../../myComponents/Date/StandardRangePicker";
-import ImageModal from '../../../myComponents/Modal/Image';
+import RcPrint from 'rc-print';
+import {exportExcel} from '../../../utils/rs/Excel';
 
 const modelNameSpace = "supply-purchase_order";
 const Fragment = React.Fragment;
@@ -61,6 +43,12 @@ const Step = Steps.Step;
 @Component.Role('erp_purchase_order')
 @Form.create()
 export default class extends PureComponent {
+  state = {
+    printModalProps: {
+      visible: false,
+    },
+    type: 'purchase',
+  }
 
   componentDidMount() {
     const rowType = Uri.Query('type');
@@ -79,10 +67,6 @@ export default class extends PureComponent {
         this.getList(1);
       }
     }
-  }
-
-  state = {
-    type: 'purchase',
   }
 
   getList = (page, value) => {
@@ -145,6 +129,76 @@ export default class extends PureComponent {
       }
     })
 
+  }
+
+  removeOrder = (orderID) => {
+    Modal.confirm({
+      title: '确定要删除采购单吗？',
+      onOk: () => {
+        const {model} = this.props;
+        model.call('removeOrder', {
+          orderID,
+        }).then(success => {
+          if (success) {
+            this.getList();
+          }
+        });
+      }
+    })
+  }
+
+  startPrint = () => {
+    this.refs.rcPrint.onPrint();
+    this.setState({
+      printModalProps: {
+        visible: false,
+      }
+    });
+  }
+
+  exportExcel = () => {
+    const rowType = Uri.Query('type');
+    const rowStatus = Uri.Query('status');
+    const {purchaseItemList, bulkItemList} = this.props[modelNameSpace];
+    let allMoney = 0, allReturnMoney = 0;
+    if (rowType === 'purchase') {
+      purchaseItemList.forEach(x => {
+        allReturnMoney += x.status === 2 ? x.purchase_amount : 0;
+        allMoney += x.purchase_amount;
+      });
+    } else {
+      bulkItemList.forEach(x => {
+        allReturnMoney += x.status === 2 ? x.pruchase_price * x.purchase_num : 0;
+        allMoney += x.purchase_price * x.purchase_num;
+      });
+    }
+    const list = rowType === 'purchase' ? purchaseItemList : bulkItemList;
+    const title = [
+      {"value": "订单编号"},
+      {"value": "商品ID"},
+      {"value": "颜色"},
+      {"value": "尺码"},
+      {"value": "供应商"},
+      {"value": "采购单价"},
+      {"value": "采购数量"},
+      {"value": "总金额"},
+    ];
+
+    let dataArr = [];
+    list.forEach(x => {
+      const obj = [
+        {value: x.order_bid,},
+        {value: x.pro_id},
+        {value: x.color_code},
+        {value: x.size_code},
+        {value: x.suppliers_name},
+        {value: Format.Money.Rmb(x.purchase_amount, 2)},
+        {value: x.num},
+        {value: Format.Money.Rmb(x.purchase_amount, 2)}
+      ];
+      dataArr.push(obj);
+    });
+    exportExcel(dataArr, '商品采购单', title);
   }
 
   renderSearchForm() {
@@ -237,7 +291,7 @@ export default class extends PureComponent {
                 model.call(row.type === 'purchase' ? 'getPurchaseItemListByID' : 'getBulkItemListByID', {
                   orderID: row.id,
                 });
-                model.push(`/supply/purchase-order?id=${row.id}&type=${row.type}`);
+                model.push(`/supply/purchase-order?id=${row.id}&type=${row.type}&status=${row.status}`);
               }
             }
           ];
@@ -256,6 +310,12 @@ export default class extends PureComponent {
                 this.submitInstock(row.id);
               }
             },
+            {
+              label: '删除',
+              submit: () => {
+                this.removeOrder(row.id);
+              }
+            }
           ];
           return (<TableActionBar action={action} more={more}/>)
         }
@@ -264,6 +324,14 @@ export default class extends PureComponent {
 
     return (
       <div>
+        <Alert style={{marginBottom: 12}} message={
+          <div>
+            <p>1、每通过excel导入下单会生成对应的采购单</p>
+            <p>2、采购单分为散单采购单和大货采购单</p>
+            <p>3、采购单生成之后无法被删除</p>
+            <p>4、采购端确认付款完成之后，采购单内采购项才会生效</p>
+          </div>
+        }/>
         <Tabs activeKey={this.state.type} type='card' onChange={type => this.setState({type}, e => this.getList(1))}>
           <TabPane tab='散单采购' key='purchase'/>
           <TabPane tab='大货采购' key='bulk'/>
@@ -297,6 +365,7 @@ export default class extends PureComponent {
   renderItemTable() {
     const {loading} = this.props;
     const rowType = Uri.Query('type');
+    const rowStatus = Uri.Query('status');
     const {purchaseItemList, bulkItemList} = this.props[modelNameSpace];
     const purchaseColumns = [
       {
@@ -350,15 +419,23 @@ export default class extends PureComponent {
         title: '总金额',
         dataIndex: 'all',
         render: (text, row) => {
-          return Format.Money.Rmb(row.purchase_amount * row.num, 2);
+          return Format.Money.Rmb(row.purchase_amount, 2);
         }
       },
       {
-        title: '是否已取消',
-        dataIndex: 'order_status',
+        title: '状态',
+        dataIndex: 'status',
         align: 'center',
         render: (text) => {
-          return text === 'cancle' || text === 'return' ? <span style={{color: 'red'}}>是</span> : '否'
+          if (text === 0) {
+            return <Badge text='待付款' status='processing'/>;
+          }
+          if (text === 1) {
+            return <Badge text='已付款' status='success'/>;
+          }
+          if (text === 2) {
+            return <Badge text='已退款' status='error'/>;
+          }
         }
       },
       {
@@ -428,11 +505,19 @@ export default class extends PureComponent {
         }
       },
       {
-        title: '是否已取消',
-        dataIndex: 'bulk_status',
+        title: '状态',
+        dataIndex: 'status',
         align: 'center',
         render: (text) => {
-          return text === 'cancle' ? <span style={{color: 'red'}}>是</span> : '否'
+          if (text === 0) {
+            return "待付款";
+          }
+          if (text === 1) {
+            return "已付款";
+          }
+          if (text === 2) {
+            return "已退款";
+          }
         }
       },
       {
@@ -443,22 +528,35 @@ export default class extends PureComponent {
         }
       },
     ];
-    let allMoney = 0;
+    let allMoney = 0, allReturnMoney = 0;
     if (rowType === 'purchase') {
       purchaseItemList.forEach(x => {
-        allMoney += x.purchase_amount * x.num;
+        allReturnMoney += x.status === 2 ? x.purchase_amount : 0;
+        allMoney += x.purchase_amount;
       });
     } else {
       bulkItemList.forEach(x => {
-        allMoney += x.pruchase_price * x.purchase_num;
+        allReturnMoney += x.status === 2 ? x.pruchase_price * x.purchase_num : 0;
+        allMoney += x.purchase_price * x.purchase_num;
       });
     }
     return (
       <div>
-        <div style={{width:'100%',textAlign: 'right'}}>
-          <Button type='primary' icon='check' style={{marginBottom: 12}} onClick={e => this.submitPay(Uri.Query('id'))}>确认付款</Button>
+        <div style={{width: '100%', textAlign: 'right'}}>
+          {rowStatus === 'wait-submit-pay' ?
+            <Button type='primary' icon='check' style={{marginBottom: 12, marginRight: 10}}
+                    onClick={e => this.submitPay(Uri.Query('id'))}>确认付款</Button> : null
+          }
+          <Button type='dashed' style={{marginBottom: 12, marginRight: rowType === 'purchase' ? 10 : 0}} icon='printer'
+                  onClick={e => this.setState({printModalProps: {visible: true}})}>打印</Button>
+          {rowType === 'purchase' ? <Button type='primary' style={{marginBottom: 12}} icon='export'
+                                            onClick={this.exportExcel} ghost>导出</Button> : null}
+
         </div>
-        <Alert message={`总采购金额：${Format.Money.Rmb(allMoney, 2)}`} style={{marginBottom: 12}}/>
+        <Alert message={`总采购金额：${Format.Money.Rmb(allMoney, 2)},
+                           总退款金额：${Format.Money.Rmb(allReturnMoney, 2)},
+                           总金额：${Format.Money.Rmb(allMoney - allReturnMoney, 2)}`}
+               style={{marginBottom: 12}}/>
         <StandardTable
           columns={rowType === 'purchase' ? purchaseColumns : bulkColumns}
           rowKey={record => record.id}
@@ -466,6 +564,176 @@ export default class extends PureComponent {
           loading={loading.effects[`${modelNameSpace}/${rowType === 'purchase' ? 'getPurchaseItemListByID' : 'getBulkItemListByID'}`]}
         />
       </div>
+    )
+  }
+
+  renderPrintModal() {
+    const {printModalProps: {visible}} = this.state;
+    const type = Uri.Query('type');
+    const {purchaseItemList, bulkItemList} = this.props[modelNameSpace];
+    const tableStyle = {
+      borderTop: '1px solid',
+      borderLeft: '1px solid',
+      borderRight: '1px solid',
+      width: 1200,
+      webkitPrintColorAdjust: 'exact',
+      fontFamily: '微软雅黑',
+    }
+    const tdCommon = {
+      padding: '5px 4px',
+      borderRight: '1px solid',
+      borderBottom: '1px solid',
+      textAlign: 'center',
+      fontSize: 13,
+      webkitPrintColorAdjust: 'exact',
+      color: '#111'
+    }
+    const list = type === 'purchase' ? purchaseItemList : bulkItemList;
+    let allMoney = 0, allReturnMoney = 0;
+    if (type === 'purchase') {
+      purchaseItemList.forEach(x => {
+        allReturnMoney += x.status === 2 ? x.purchase_amount : 0;
+        allMoney += x.purchase_amount;
+      });
+    } else {
+      bulkItemList.forEach(x => {
+        allReturnMoney += x.status === 2 ? x.pruchase_price * x.purchase_num : 0;
+        allMoney += x.purchase_price * x.purchase_num;
+      });
+    }
+    return (
+      <StandardModal
+        style={{top: 20}}
+        title='预览'
+        visible={visible}
+        onCancel={e => this.setState({printModalProps: {visible: false}})}
+        width={1249}
+        onOk={e => this.startPrint()}
+      >
+        <RcPrint ref="rcPrint" clearIframeCache>
+          <div>
+            <h1 style={{textAlign: 'center', fontWeight: 'bold'}}>商品采购单</h1>
+            <table style={tableStyle}>
+              <tr>
+                <td style={{...tdCommon, width: 50, maxWidth: 50, textAlign: 'center', fontWeight: 'bold'}}>序号</td>
+                <td style={{...tdCommon, width: 70, maxWidth: 70, textAlign: 'center', fontWeight: 'bold'}}>图片</td>
+                <td style={{...tdCommon, width: 80, maxWidth: 80, textAlign: 'center', fontWeight: 'bold'}}>商品ID</td>
+                <td style={{...tdCommon, width: 100, maxWidth: 100, textAlign: 'center', fontWeight: 'bold'}}>颜色</td>
+                <td style={{...tdCommon, width: 100, maxWidth: 100, textAlign: 'center', fontWeight: 'bold'}}>尺码</td>
+                <td style={{...tdCommon, width: 120, maxWidth: 120, textAlign: 'center', fontWeight: 'bold'}}>供应商</td>
+                <td style={{...tdCommon, width: 200, maxWidth: 200, textAlign: 'center', fontWeight: 'bold'}}>供应商单号</td>
+                <td style={{...tdCommon, width: 100, maxWidth: 100, textAlign: 'right', fontWeight: 'bold'}}>采购单价</td>
+                <td style={{...tdCommon, width: 100, maxWidth: 100, textAlign: 'right', fontWeight: 'bold'}}>采购数量</td>
+                <td style={{...tdCommon, width: 160, maxWidth: 160, textAlign: 'right', fontWeight: 'bold'}}>总金额</td>
+              </tr>
+              {list.map((value, index) => {
+                return (
+                  <tr>
+                    <td
+                      style={{...tdCommon, width: 50, maxWidth: 50, height: 31, textAlign: 'center',}}>{index + 1}</td>
+                    <td style={{...tdCommon, width: 70, maxWidth: 70, height: 31, textAlign: 'center',}}><ProductInfo
+                      proId={value.pro_id}/></td>
+                    <td
+                      style={{
+                        ...tdCommon,
+                        width: 80,
+                        maxWidth: 80,
+                        height: 31,
+                        textAlign: 'center'
+                      }}>{value.pro_id}</td>
+                    <td style={{
+                      ...tdCommon,
+                      width: 100,
+                      maxWidth: 100,
+                      height: 31,
+                      textAlign: 'center'
+                    }}>{value.color_code}</td>
+                    <td style={{
+                      ...tdCommon,
+                      width: 100,
+                      maxWidth: 100,
+                      height: 31,
+                      textAlign: 'center'
+                    }}>{value.size_code}</td>
+                    <td style={{
+                      ...tdCommon,
+                      width: 120,
+                      maxWidth: 120,
+                      height: 31,
+                      textAlign: 'center'
+                    }}>{value.suppliers_name}</td>
+                    <td style={{
+                      ...tdCommon,
+                      width: 200,
+                      maxWidth: 200,
+                      height: 31,
+                      textAlign: 'center'
+                    }}>{value.suppliers_number}</td>
+                    <td style={{
+                      ...tdCommon,
+                      width: 100,
+                      maxWidth: 100,
+                      height: 31,
+                      textAlign: 'right'
+                    }}>{Format.Money.Rmb(type === 'purchase' ? value.purchase_amount : value.purchase_price, 2)}</td>
+                    <td style={{
+                      ...tdCommon,
+                      width: 80,
+                      maxWidth: 80,
+                      height: 31,
+                      textAlign: 'right'
+                    }}>{formatNumber(type === 'purchase' ? value.num : value.purchase_num)}</td>
+                    <td style={{...tdCommon, width: 160, maxWidth: 160, height: 31, textAlign: 'right'}}>
+                      <p>{Format.Money.Rmb(type === 'purchase' ? (value.num * value.purchase_amount) : (value.purchase_num * value.purchase_price), 2)}</p>
+                      {value.status === 2 ? <p
+                        style={{color: 'red'}}>-{Format.Money.Rmb(type === 'purchase' ? (value.num * value.purchase_amount)
+                        : (value.purchase_num * value.purchase_price), 2)}</p> : null}
+                    </td>
+                  </tr>
+                )
+              })}
+              <tr>
+                <td style={{
+                  ...tdCommon,
+                  width: 50,
+                  maxWidth: 50,
+                  height: 31,
+                  textAlign: 'center',
+                  fontWeight: 'bold'
+                }}>合计
+
+
+                </td>
+                <td style={{...tdCommon, width: 70, maxWidth: 70, height: 31, textAlign: 'center',}}/>
+                <td style={{...tdCommon, width: 80, maxWidth: 80, height: 31, textAlign: 'center'}}/>
+                <td style={{...tdCommon, width: 100, maxWidth: 100, height: 31, textAlign: 'center'}}/>
+                <td style={{...tdCommon, width: 100, maxWidth: 100, height: 31, textAlign: 'center'}}/>
+                <td style={{...tdCommon, width: 120, maxWidth: 120, height: 31, textAlign: 'center'}}/>
+                <td style={{...tdCommon, width: 200, maxWidth: 200, height: 31, textAlign: 'center'}}/>
+                <td style={{...tdCommon, width: 100, maxWidth: 100, height: 31, textAlign: 'right'}}/>
+                <td style={{
+                  ...tdCommon,
+                  width: 80,
+                  maxWidth: 80,
+                  height: 31,
+                  textAlign: 'right'
+                }}/>
+                <td style={{
+                  ...tdCommon,
+                  width: 160,
+                  maxWidth: 160,
+                  height: 31,
+                  textAlign: 'right'
+                }}>
+                  <p>总采购：{Format.Money.Rmb(allMoney, 2)}</p>
+                  <p style={{color: 'red'}}>总退款：{`-${Format.Money.Rmb(allReturnMoney, 2)}`}</p>
+                  <p>总金额：{Format.Money.Rmb(allMoney - allReturnMoney, 2)}</p>
+                </td>
+              </tr>
+            </table>
+          </div>
+        </RcPrint>
+      </StandardModal>
     )
   }
 
@@ -493,7 +761,7 @@ export default class extends PureComponent {
             </div>
           </div> :
           <FxLayout {...fxLayoutProps} />}
-
+        {this.state.printModalProps.visible ? this.renderPrintModal() : null}
       </div>
     )
   }
