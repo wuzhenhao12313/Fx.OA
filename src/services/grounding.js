@@ -63,6 +63,10 @@ export async function switchUnder(params) {
     return Http.AutoError.Post(`${prefix}/SwitchUnder`, params);
 }
 
+export async function switchIsSale(params) {
+  return Http.AutoError.Post(`${prefix}/SwitchIsSale`, params);
+}
+
 export async function addPlanItem(params) {
   return Http.AutoError.Post(`${prefix}/AddPlanItem`, params);
 }
@@ -89,6 +93,10 @@ export async function  downloadAsinByID(params) {
 
 export async function  getAsinList(params) {
   return Http.AutoError.Get(`${prefix}/GetAsinList`, params);
+}
+
+export async function  getAsinListNotAmazon(params) {
+  return Http.AutoError.Get(`${prefix}/GetAsinListNotAmazon`, params);
 }
 
 export async function  getPAsinDetail(params) {

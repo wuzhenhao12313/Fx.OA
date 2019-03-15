@@ -48,5 +48,13 @@ export async function createInstockOrder(params) {
   return Http.AutoError.Post(`${prefix}/CreateInstockOrder`, params);
 }
 
+export async function removeOrder(params) {
+  return Http.AutoError.Post(`${prefix}/RemoveOrder`, params);
+}
+
+export async function removerInstockOrder(params) {
+  return Http.AutoError.Post(`${prefix}/RemoveInstockOrder`, params);
+}
+
 
 
